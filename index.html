@@ -11,6 +11,7 @@
             --picker-red: #e74c3c;
             --dark-bg: #2c3e50;
             --text-light: #ecf0f1;
+            --highlight: #f1c40f;
         }
 
         body {
@@ -19,17 +20,15 @@
             padding: 0;
             background-color: #f4f4f4;
             text-align: center;
-            /* Prevent bounce scrolling on HHDs */
             overscroll-behavior: none; 
         }
 
         .container {
             padding: 20px;
-            max-width: 600px; /* Limits width on desktop */
+            max-width: 600px;
             margin: 0 auto;
         }
 
-        /* Input Styling */
         input {
             width: 100%;
             padding: 15px;
@@ -40,7 +39,6 @@
             box-sizing: border-box;
         }
 
-        /* Button Styling - Optimized for Touch */
         button {
             width: 100%;
             padding: 20px;
@@ -51,7 +49,7 @@
             font-weight: bold;
             color: white;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            touch-action: manipulation; /* Removes tap delay on mobile */
+            touch-action: manipulation;
             margin-bottom: 15px;
         }
 
@@ -59,11 +57,10 @@
         .btn-danger { background-color: var(--picker-red); }
         .btn-success { background-color: var(--picker-green); }
 
-        /* VIEWS toggling */
         .view-section { display: none; }
         .active-view { display: block; }
 
-        /* PICKER VIEW STYLES */
+        /* PICKER STYLES */
         .status-card {
             padding: 40px;
             border-radius: 10px;
@@ -79,16 +76,16 @@
             100% { opacity: 1; }
         }
 
-        /* ZONE GRID for HHD */
         .zone-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* 3 Columns */
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
         }
         .zone-btn {
             background-color: var(--dark-bg);
             padding: 15px;
             font-size: 1.2rem;
+            color: white;
         }
 
         /* DEO DASHBOARD STYLES */
@@ -113,7 +110,33 @@
             margin: 0;
         }
 
-        /* Header */
+        /* --- NOTIFICATION POPUP (TOAST) --- */
+        #notification-toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--dark-bg);
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            top: 30px;
+            transform: translateX(-50%);
+            font-size: 1.2rem;
+            border-bottom: 5px solid var(--highlight);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: top 0.5s, opacity 0.5s;
+            opacity: 0;
+        }
+
+        #notification-toast.show {
+            visibility: visible;
+            top: 50px;
+            opacity: 1;
+        }
+
         header {
             background-color: var(--dark-bg);
             color: white;
@@ -127,6 +150,8 @@
     <header>
         <h2 style="margin:0;">ARDON LIGHT</h2>
     </header>
+
+    <div id="notification-toast">NEW ISSUE REPORTED!</div>
 
     <div class="container">
 
@@ -163,8 +188,9 @@
 
         <div id="view-deo" class="view-section">
             <h3>Active Issues Feed</h3>
+            <p style="font-size:0.8rem; color:#888;">Volume up to hear alerts</p>
             <div id="ticket-list">
-                <p>No active issues. All zones Green.</p>
+                <p>No active issues. Production smooth.</p>
             </div>
         </div>
 
@@ -173,19 +199,20 @@
     <script type="module">
         // Import Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, remove, set, onChildAdded } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
         // --- CONFIGURATION ---
         // TODO: REPLACE THIS OBJECT WITH YOUR ACTUAL FIREBASE CONFIG
-     const firebaseConfig = {
-    apiKey: "AIzaSyBIg1Qdo-GPYFV6ML2JNOLSyx-Jrllmx5s",
-    authDomain: "ardon-4b555.firebaseapp.com",
-    projectId: "ardon-4b555",
-    storageBucket: "ardon-4b555.firebasestorage.app",
-    messagingSenderId: "881199734184",
-    appId: "1:881199734184:web:1531178087c7174b3b519d",
-    measurementId: "G-6S353PQEKG"
-  };
+        const firebaseConfig = {
+            const firebaseConfig = {
+            apiKey: "AIzaSyBIg1Qdo-GPYFV6ML2JNOLSyx-Jrllmx5s",
+            authDomain: "ardon-4b555.firebaseapp.com",
+            projectId: "ardon-4b555",
+            storageBucket: "ardon-4b555.firebasestorage.app",
+            messagingSenderId: "881199734184",
+            appId: "1:881199734184:web:1531178087c7174b3b519d",
+            measurementId: "G-6S353PQEKG"
+        };
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -194,6 +221,30 @@
         // --- GLOBAL VARIABLES ---
         let currentUser = "";
         let currentTicketId = null;
+        let isDeoMode = false;
+        let initialLoadComplete = false; 
+
+        // --- HELPER FUNCTIONS ---
+        function playVoiceNotification(zone) {
+            // Uses built-in browser text-to-speech
+            if ('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance(`Attention. Issue reported in Zone ${zone}`);
+                msg.rate = 1; // Speed (0.1 to 10)
+                msg.pitch = 1; // Pitch (0 to 2)
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById("notification-toast");
+            toast.innerText = message;
+            toast.className = "show";
+            
+            // Hide after 4 seconds
+            setTimeout(function(){ 
+                toast.className = toast.className.replace("show", ""); 
+            }, 4000);
+        }
 
         // --- LOGIN LOGIC ---
         window.handleLogin = function() {
@@ -207,40 +258,39 @@
 
             if (inputId === 'DEO' || inputId === 'ADMIN') {
                 // Show Manager Dashboard
+                isDeoMode = true;
                 document.getElementById('view-deo').classList.add('active-view');
                 initManagerListener();
             } else {
                 // Show Picker View
+                isDeoMode = false;
                 document.getElementById('view-picker').classList.add('active-view');
                 document.getElementById('picker-id-display').innerText = "ID: " + currentUser;
                 generateZones();
-                initPickerListener(); // Listen if my ticket gets resolved
+                initPickerListener(); 
             }
         }
 
         // --- PICKER LOGIC ---
 
-        // 1. Generate Zone Buttons (A1 to F5)
         function generateZones() {
             const container = document.getElementById('zone-buttons');
-            const aisles = ['A', 'B', 'C', 'D'];
+            const aisles = ['A', 'B', 'C', 'D', 'E', 'F'];
             let html = '';
             
             aisles.forEach(aisle => {
-                for(let i=1; i<=3; i++) { // 1 to 3 per aisle
+                for(let i=1; i<=3; i++) { 
                     let zone = aisle + i;
                     html += `<button class="zone-btn" onclick="raiseTicket('${zone}')">${zone}</button>`;
                 }
             });
             container.innerHTML = html;
-            // Expose function globally
             window.raiseTicket = raiseTicket;
         }
 
-        // 2. Show/Hide Grid
         window.toggleZoneSelector = function() {
             document.getElementById('picker-controls').style.display = 'none';
-            document.getElementById('zone-selector').style.display = 'block';
+            document.getElementById('zone-selector').style.display = 'grid';
         }
 
         window.cancelIssue = function() {
@@ -248,22 +298,20 @@
             document.getElementById('zone-selector').style.display = 'none';
         }
 
-        // 3. Send to Firebase
         function raiseTicket(zone) {
             const ticketsRef = ref(db, 'tickets');
-            const newTicketRef = push(ticketsRef); // Create unique ID
+            const newTicketRef = push(ticketsRef); 
             
             set(newTicketRef, {
                 casper_id: currentUser,
                 zone: zone,
                 timestamp: Date.now()
             }).then(() => {
-                currentTicketId = newTicketRef.key; // Save ID so we can track it
+                currentTicketId = newTicketRef.key;
                 setPickerState('HOLD', zone);
             });
         }
 
-        // 4. Update UI State
         function setPickerState(state, zone) {
             const statusCard = document.getElementById('picker-status-card');
             const statusText = document.getElementById('status-text');
@@ -275,7 +323,6 @@
                 document.getElementById('picker-waiting').style.display = 'block';
                 document.getElementById('display-zone').innerText = zone;
             } else {
-                // BACK TO PICKING
                 statusCard.className = 'status-card status-picking';
                 statusText.innerText = 'PICKING';
                 document.getElementById('picker-controls').style.display = 'block';
@@ -285,7 +332,6 @@
             }
         }
 
-        // 5. Watch for Resolution (If manager resolves, I go back to Green automatically)
         function initPickerListener() {
             const ticketsRef = ref(db, 'tickets');
             onValue(ticketsRef, (snapshot) => {
@@ -300,7 +346,6 @@
                     });
                 }
 
-                // If I had a ticket, but it's gone from DB, it means it was resolved
                 if (currentTicketId && !myTicketStillExists) {
                     setPickerState('PICKING');
                 }
@@ -313,19 +358,19 @@
             const ticketsRef = ref(db, 'tickets');
             const listContainer = document.getElementById('ticket-list');
 
+            // Listener 1: Update the whole list
             onValue(ticketsRef, (snapshot) => {
                 const data = snapshot.val();
-                listContainer.innerHTML = ""; // Clear list
+                listContainer.innerHTML = ""; 
 
                 if (!data) {
                     listContainer.innerHTML = "<p style='padding:20px; color:#aaa;'>No active issues. Production smooth.</p>";
                     return;
                 }
 
-                // Loop through tickets
                 Object.keys(data).forEach(key => {
                     const ticket = data[key];
-                    const timeAgo = Math.floor((Date.now() - ticket.timestamp) / 60000); // Minutes
+                    const timeAgo = Math.floor((Date.now() - ticket.timestamp) / 60000); 
 
                     const html = `
                     <div class="ticket-card">
@@ -339,13 +384,22 @@
                     `;
                     listContainer.innerHTML += html;
                 });
+                
+                initialLoadComplete = true;
+            });
+
+            // Listener 2: Detect NEW items for Voice Alert
+            onChildAdded(ticketsRef, (snapshot) => {
+                if (initialLoadComplete) {
+                    const ticket = snapshot.val();
+                    playVoiceNotification(ticket.zone);
+                    showToast(`New Issue at Zone ${ticket.zone}!`);
+                }
             });
             
-            // Expose resolve function globally
             window.resolveTicket = resolveTicket;
         }
 
-        // Resolve (Delete from DB)
         function resolveTicket(ticketId) {
             if(confirm("Issue Resolved?")) {
                 remove(ref(db, 'tickets/' + ticketId));
