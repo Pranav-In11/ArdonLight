@@ -160,7 +160,7 @@
 
         <div id="view-login" class="view-section active-view">
             <h3>Picker / DEO Login</h3>
-            <p>Enter ID (Enter 'DEO' for Manager View)</p>
+            <p>Enter ID (Enter Your CasperID)</p>
             <input type="text" id="input-casper-id" placeholder="Casper ID / Employee ID">
             <button id="btn-login" class="btn-primary" onclick="handleLogin()" disabled>Loading System...</button>
             <p id="loading-msg">Connecting to Database & Fetching Staff List...</p>
@@ -195,7 +195,7 @@
             <button onclick="testNotification()" style="font-size: 0.8rem; padding: 10px; background: #95a5a6; width: auto;">🔊 Test System Alert</button>
             
             <div id="ticket-list" style="margin-top: 20px;">
-                <p>No active issues. Production smooth.</p>
+                <p>No active issues. Picking is happening smooth.</p>
             </div>
         </div>
 
@@ -342,7 +342,7 @@
             const aisles = ['A', 'B', 'C', 'D', 'E', 'F'];
             let html = '';
             aisles.forEach(aisle => {
-                for(let i=1; i<=3; i++) { 
+                for(let i=1; i<=9; i++) { 
                     let zone = aisle + i;
                     html += `<button class="zone-btn" onclick="raiseTicket('${zone}')">${zone}</button>`;
                 }
