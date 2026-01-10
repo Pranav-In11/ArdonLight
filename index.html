@@ -114,17 +114,17 @@
             margin: 0;
         }
 
-        /* --- FIXED NOTIFICATION TOAST --- */
+        /* FIXED NOTIFICATION TOAST (In-App) */
         #notification-toast {
             position: fixed;
-            top: -100px; /* Start hidden above screen */
+            top: -100px;
             left: 50%;
             transform: translateX(-50%);
             background-color: #333;
             color: #fff;
             padding: 20px 40px;
             border-radius: 50px;
-            z-index: 9999; /* Ensure it is on top of everything */
+            z-index: 9999;
             font-size: 1.2rem;
             font-weight: bold;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
@@ -135,7 +135,7 @@
         }
 
         #notification-toast.show {
-            top: 20px; /* Slide down into view */
+            top: 20px;
         }
 
         header {
@@ -192,7 +192,7 @@
         <div id="view-deo" class="view-section">
             <h3>Active Issues Feed</h3>
             
-            <button onclick="testNotification()" style="font-size: 0.8rem; padding: 10px; background: #95a5a6; width: auto;">🔊 Test Sound & Popup</button>
+            <button onclick="testNotification()" style="font-size: 0.8rem; padding: 10px; background: #95a5a6; width: auto;">🔊 Test System Alert</button>
             
             <div id="ticket-list" style="margin-top: 20px;">
                 <p>No active issues. Production smooth.</p>
@@ -207,14 +207,15 @@
 
         // --- CONFIGURATION ---
         const firebaseConfig = {
-        apiKey: "AIzaSyBIg1Qdo-GPYFV6ML2JNOLSyx-Jrllmx5s",
-        authDomain: "ardon-4b555.firebaseapp.com",
-        projectId: "ardon-4b555",
-        storageBucket: "ardon-4b555.firebasestorage.app",
-        messagingSenderId: "881199734184",
-        appId: "1:881199734184:web:1531178087c7174b3b519d",
-        measurementId: "G-6S353PQEKG"
+            apiKey: "AIzaSyBIg1Qdo-GPYFV6ML2JNOLSyx-Jrllmx5s",
+            authDomain: "ardon-4b555.firebaseapp.com",
+            projectId: "ardon-4b555",
+            storageBucket: "ardon-4b555.firebasestorage.app",
+            messagingSenderId: "881199734184",
+            appId: "1:881199734184:web:1531178087c7174b3b519d",
+            measurementId: "G-6S353PQEKG"
   };
+        };
 
         // TODO: PASTE YOUR GITHUB RAW FILE URL HERE
         const PICKER_LIST_URL = "https://raw.githubusercontent.com/Pranav-In11/ArdonLight/main/pickers.json"; 
@@ -228,7 +229,7 @@
         let isDeoMode = false;
         let initialLoadComplete = false; 
 
-        // --- 1. INITIALIZATION & FETCHING LIST ---
+        // --- 1. INITIALIZATION ---
         (async function initSystem() {
             try {
                 const response = await fetch(PICKER_LIST_URL);
@@ -242,7 +243,6 @@
 
             } catch (error) {
                 console.error(error);
-                // If fetch fails, allow login anyway for testing, but warn user
                 document.getElementById('btn-login').disabled = false;
                 document.getElementById('btn-login').innerText = "ENTER (OFFLINE MODE)";
                 document.getElementById('loading-msg').innerText = "Could not verify ID list. Allowing all logins for now.";
@@ -256,11 +256,18 @@
 
             if (inputId === 'DEO' || inputId === 'ADMIN') {
                 currentUser = inputId;
+                
+                // REQUEST WINDOWS NOTIFICATION PERMISSION
+                if ("Notification" in window) {
+                    Notification.requestPermission().then(permission => {
+                        console.log("Notification permission:", permission);
+                    });
+                }
+                
                 enterDeoMode();
                 return;
             }
 
-            // If list failed to load, allow anyone (for safety during setup)
             let isValidUser = true;
             if(authorizedPickers.length > 0) {
                  isValidUser = authorizedPickers.some(id => String(id).toUpperCase() === inputId);
@@ -291,29 +298,41 @@
             initPickerListener(); 
         }
 
-        // --- 3. NOTIFICATION LOGIC (Fixed) ---
+        // --- 3. NOTIFICATION LOGIC (SYSTEM + IN-APP) ---
         
-        // Expose this function to the window so the Test Button can use it
         window.testNotification = function() {
             triggerAlert("Test Zone A1");
         }
 
         function triggerAlert(zoneName) {
-            // 1. Play Sound (Text to Speech)
+            const message = `Issue reported in Zone ${zoneName}`;
+
+            // 1. Audio (Text to Speech)
             if ('speechSynthesis' in window) {
-                const msg = new SpeechSynthesisUtterance(`Alert. Issue in ${zoneName}`);
+                const msg = new SpeechSynthesisUtterance(`Alert. ${message}`);
                 window.speechSynthesis.speak(msg);
             }
 
-            // 2. Show Visual Toast
+            // 2. In-App HTML Toast
             const toast = document.getElementById("notification-toast");
-            toast.innerText = `⚠️ ISSUE: ${zoneName}`;
+            toast.innerText = `⚠️ ${message}`;
             toast.classList.add("show");
+            setTimeout(() => { toast.classList.remove("show"); }, 5000);
 
-            // Hide after 5 seconds
-            setTimeout(() => {
-                toast.classList.remove("show");
-            }, 5000);
+            // 3. WINDOWS SYSTEM NOTIFICATION
+            if ("Notification" in window && Notification.permission === "granted") {
+                const notification = new Notification("Ardon Light Alert", {
+                    body: message,
+                    icon: "https://cdn-icons-png.flaticon.com/512/564/564619.png", // Red warning icon
+                    requireInteraction: true // Keeps notification on screen until clicked
+                });
+
+                // Focus window when clicked
+                notification.onclick = function() {
+                    window.focus();
+                    this.close();
+                };
+            }
         }
 
         // --- 4. APP LOGIC ---
@@ -395,13 +414,11 @@
             const ticketsRef = ref(db, 'tickets');
             const listContainer = document.getElementById('ticket-list');
 
-            // --- LISTENER 1: Sync the list ---
             onValue(ticketsRef, (snapshot) => {
                 const data = snapshot.val();
                 listContainer.innerHTML = ""; 
                 if (!data) {
                     listContainer.innerHTML = "<p style='padding:20px; color:#aaa;'>No active issues. Production smooth.</p>";
-                    // We do NOT return here, because we must set initialLoadComplete
                 } else {
                     Object.keys(data).forEach(key => {
                         const ticket = data[key];
@@ -418,15 +435,10 @@
                         listContainer.innerHTML += html;
                     });
                 }
-                
-                // Mark that we have finished loading the initial database state
-                // This prevents alerts for old tickets
                 initialLoadComplete = true;
             });
 
-            // --- LISTENER 2: Watch for NEW additions ---
             onChildAdded(ticketsRef, (snapshot) => {
-                // If initial load is done, this must be a NEW ticket
                 if (initialLoadComplete) {
                     const ticket = snapshot.val();
                     triggerAlert(ticket.zone);
