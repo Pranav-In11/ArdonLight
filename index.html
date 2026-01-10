@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ardon Light - Warehouse App</title>
+    <style>
+        /* --- CSS STYLES --- */
+        :root {
+            --picker-green: #2ecc71;
+            --picker-red: #e74c3c;
+            --picker-orange: #e67e22;
+            --dark-bg: #2c3e50;
+            --text-light: #ecf0f1;
+            --highlight: #f1c40f;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+            overscroll-behavior: none; 
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            touch-action: manipulation;
+            margin-bottom: 15px;
+            transition: transform 0.1s;
+        }
+
+        button:active { transform: scale(0.98); }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+
+        .btn-primary { background-color: #3498db; }
+        .btn-danger { background-color: var(--picker-red); }
+        .btn-warning { background-color: var(--picker-orange); }
+        .btn-success { background-color: var(--picker-green); }
+
+        .view-section { display: none; }
+        .active-view { display: block; }
+
+        /* PICKER STYLES */
+        .status-card {
+            padding: 40px;
+            border-radius: 10px;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .status-picking { background-color: var(--picker-green); }
+        .status-hold { background-color: var(--picker-red); animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        .zone-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .zone-btn {
+            background-color: var(--dark-bg);
+            padding: 15px;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        /* DEO DASHBOARD STYLES */
+        .ticket-card {
+            background: white;
+            border-left: 10px solid var(--picker-red);
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: left;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ticket-info h3 { margin: 0 0 5px 0; font-size: 1.5rem; }
+        .ticket-info p { margin: 0; color: #7f8c8d; }
+        .btn-resolve {
+            width: auto;
+            padding: 10px 20px;
+            background-color: var(--picker-green);
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* FIXED NOTIFICATION TOAST (In-App) */
+        #notification-toast {
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 20px 40px;
+            border-radius: 50px;
+            z-index: 9999;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transition: top 0.5s ease-in-out;
+            border: 2px solid var(--highlight);
+            width: 80%;
+            max-width: 400px;
+        }
+
+        #notification-toast.show {
+            top: 20px;
+        }
+
+        header {
+            background-color: var(--dark-bg);
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        #loading-msg { color: #7f8c8d; font-size: 0.9rem; margin-top: 10px;}
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2 style="margin:0;">ARDON LIGHT</h2>
+    </header>
+
+    <div id="notification-toast">NEW ISSUE REPORTED!</div>
+
+    <div class="container">
+
+        <div id="view-login" class="view-section active-view">
+            <h3>Picker / DEO Login</h3>
+            <p>Enter ID (Enter 'DEO' for Manager View)</p>
+            <input type="text" id="input-casper-id" placeholder="Casper ID / Employee ID">
+            <button id="btn-login" class="btn-primary" onclick="handleLogin()" disabled>Loading System...</button>
+            <p id="loading-msg">Connecting to Database & Fetching Staff List...</p>
+        </div>
+
+        <div id="view-picker" class="view-section">
+            <div id="picker-status-card" class="status-card status-picking">
+                <h1 id="status-text" style="margin:0;">PICKING</h1>
+                <p id="picker-id-display">ID: --</p>
+            </div>
+
+            <div id="picker-controls">
+                <button class="btn-danger" onclick="toggleZoneSelector()">RAISE ISSUE / STOP</button>
+            </div>
+
+            <div id="picker-waiting" style="display:none;">
+                <h3>DEO NOTIFIED</h3>
+                <p>Help is coming to <span id="display-zone">--</span></p>
+                <br>
+                <button class="btn-warning" onclick="cancelActiveTicket()">CANCEL / FALSE ALARM</button>
+                <p style="font-size: 0.9rem; margin-top: 5px;">Mistake? Click above to cancel.</p>
+            </div>
+
+            <div id="zone-selector" style="display:none;">
+                <h3>Select Issue Zone:</h3>
+                <div class="zone-grid" id="zone-buttons"></div>
+                <button class="btn-primary" style="margin-top:20px; background:#7f8c8d;" onclick="cancelZoneSelection()">BACK</button>
+            </div>
+        </div>
+
+        <div id="view-deo" class="view-section">
+            <h3>Active Issues Feed</h3>
+            
+            <button onclick="testNotification()" style="font-size: 0.8rem; padding: 10px; background: #95a5a6; width: auto;">🔊 Test System Alert</button>
+            
+            <div id="ticket-list" style="margin-top: 20px;">
+                <p>No active issues. Production smooth.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, remove, set, onChildAdded } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+        // --- CONFIGURATION ---
+        const firebaseConfig = {
+
+            apiKey: "AIzaSyBIg1Qdo-GPYFV6ML2JNOLSyx-Jrllmx5s",
+            authDomain: "ardon-4b555.firebaseapp.com",
+            projectId: "ardon-4b555",
+            storageBucket: "ardon-4b555.firebasestorage.app",
+            messagingSenderId: "881199734184",
+            appId: "1:881199734184:web:1531178087c7174b3b519d",
+            measurementId: "G-6S353PQEKG"
+            };
+        // TODO: PASTE YOUR GITHUB RAW FILE URL HERE
+        const PICKER_LIST_URL = "https://raw.githubusercontent.com/Pranav-In11/ArdonLight/main/pickers.json"; 
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let authorizedPickers = [];
+        let currentUser = "";
+        let currentTicketId = null;
+        let isDeoMode = false;
+        let initialLoadComplete = false; 
+
+        // --- 1. INITIALIZATION ---
+        (async function initSystem() {
+            try {
+                const response = await fetch(PICKER_LIST_URL);
+                if (!response.ok) throw new Error("Failed to load staff list");
+                
+                authorizedPickers = await response.json();
+                
+                document.getElementById('btn-login').disabled = false;
+                document.getElementById('btn-login').innerText = "ENTER SHIFT";
+                document.getElementById('loading-msg').style.display = 'none';
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('btn-login').disabled = false;
+                document.getElementById('btn-login').innerText = "ENTER (OFFLINE MODE)";
+                document.getElementById('loading-msg').innerText = "Could not verify ID list. Allowing all logins for now.";
+            }
+        })();
+
+        // --- 2. LOGIN LOGIC ---
+        window.handleLogin = function() {
+            const inputId = document.getElementById('input-casper-id').value.toUpperCase().trim();
+            if(!inputId) return alert("Please enter ID");
+
+            if (inputId === 'DEO' || inputId === 'ADMIN') {
+                currentUser = inputId;
+                if ("Notification" in window) {
+                    Notification.requestPermission();
+                }
+                enterDeoMode();
+                return;
+            }
+
+            let isValidUser = true;
+            if(authorizedPickers.length > 0) {
+                 isValidUser = authorizedPickers.some(id => String(id).toUpperCase() === inputId);
+            }
+
+            if (isValidUser) {
+                currentUser = inputId;
+                enterPickerMode();
+            } else {
+                alert("Access Denied: ID not found in system list.");
+                document.getElementById('input-casper-id').value = '';
+            }
+        }
+
+        function enterDeoMode() {
+            document.getElementById('view-login').classList.remove('active-view');
+            document.getElementById('view-deo').classList.add('active-view');
+            isDeoMode = true;
+            initManagerListener();
+        }
+
+        function enterPickerMode() {
+            document.getElementById('view-login').classList.remove('active-view');
+            document.getElementById('view-picker').classList.add('active-view');
+            document.getElementById('picker-id-display').innerText = "ID: " + currentUser;
+            isDeoMode = false;
+            generateZones();
+            initPickerListener(); 
+        }
+
+        // --- 3. NOTIFICATION LOGIC ---
+        
+        window.testNotification = function() {
+            triggerAlert("Test Zone A1");
+        }
+
+        function triggerAlert(zoneName) {
+            const message = `Issue reported in Zone ${zoneName}`;
+
+            if ('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance(`Alert. ${message}`);
+                window.speechSynthesis.speak(msg);
+            }
+
+            const toast = document.getElementById("notification-toast");
+            toast.innerText = `⚠️ ${message}`;
+            toast.classList.add("show");
+            setTimeout(() => { toast.classList.remove("show"); }, 5000);
+
+            if ("Notification" in window && Notification.permission === "granted") {
+                const notification = new Notification("Ardon Light Alert", {
+                    body: message,
+                    icon: "https://cdn-icons-png.flaticon.com/512/564/564619.png",
+                    requireInteraction: true 
+                });
+                notification.onclick = function() {
+                    window.focus();
+                    this.close();
+                };
+            }
+        }
+
+        // --- 4. APP LOGIC ---
+
+        function generateZones() {
+            const container = document.getElementById('zone-buttons');
+            const aisles = ['A', 'B', 'C', 'D', 'E', 'F'];
+            let html = '';
+            aisles.forEach(aisle => {
+                for(let i=1; i<=3; i++) { 
+                    let zone = aisle + i;
+                    html += `<button class="zone-btn" onclick="raiseTicket('${zone}')">${zone}</button>`;
+                }
+            });
+            container.innerHTML = html;
+            window.raiseTicket = raiseTicket;
+        }
+
+        window.toggleZoneSelector = function() {
+            document.getElementById('picker-controls').style.display = 'none';
+            document.getElementById('zone-selector').style.display = 'grid';
+        }
+
+        window.cancelZoneSelection = function() {
+            document.getElementById('picker-controls').style.display = 'block';
+            document.getElementById('zone-selector').style.display = 'none';
+        }
+
+        // --- NEW: Cancel Active Ticket Logic ---
+        window.cancelActiveTicket = function() {
+            if(currentTicketId) {
+                // Delete from Firebase
+                remove(ref(db, 'tickets/' + currentTicketId))
+                .then(() => {
+                    // Reset UI locally immediately
+                    setPickerState('PICKING');
+                })
+                .catch((error) => {
+                    alert("Error cancelling ticket: " + error.message);
+                });
+            }
+        }
+
+        function raiseTicket(zone) {
+            const ticketsRef = ref(db, 'tickets');
+            const newTicketRef = push(ticketsRef); 
+            set(newTicketRef, {
+                casper_id: currentUser,
+                zone: zone,
+                timestamp: Date.now()
+            }).then(() => {
+                currentTicketId = newTicketRef.key;
+                setPickerState('HOLD', zone);
+            });
+        }
+
+        function setPickerState(state, zone) {
+            const statusCard = document.getElementById('picker-status-card');
+            const statusText = document.getElementById('status-text');
+
+            if(state === 'HOLD') {
+                statusCard.className = 'status-card status-hold';
+                statusText.innerText = 'STOP - ISSUE';
+                document.getElementById('zone-selector').style.display = 'none';
+                document.getElementById('picker-waiting').style.display = 'block';
+                document.getElementById('display-zone').innerText = zone;
+            } else {
+                statusCard.className = 'status-card status-picking';
+                statusText.innerText = 'PICKING';
+                document.getElementById('picker-controls').style.display = 'block';
+                document.getElementById('picker-waiting').style.display = 'none';
+                document.getElementById('zone-selector').style.display = 'none';
+                currentTicketId = null;
+            }
+        }
+
+        function initPickerListener() {
+            const ticketsRef = ref(db, 'tickets');
+            onValue(ticketsRef, (snapshot) => {
+                const data = snapshot.val();
+                let myTicketStillExists = false;
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        if (key === currentTicketId) myTicketStillExists = true;
+                    });
+                }
+                // If Manager resolves it OR if Picker cancels it, this runs
+                if (currentTicketId && !myTicketStillExists) {
+                    setPickerState('PICKING');
+                }
+            });
+        }
+
+        function initManagerListener() {
+            const ticketsRef = ref(db, 'tickets');
+            const listContainer = document.getElementById('ticket-list');
+
+            onValue(ticketsRef, (snapshot) => {
+                const data = snapshot.val();
+                listContainer.innerHTML = ""; 
+                if (!data) {
+                    listContainer.innerHTML = "<p style='padding:20px; color:#aaa;'>No active issues. Production smooth.</p>";
+                } else {
+                    Object.keys(data).forEach(key => {
+                        const ticket = data[key];
+                        const timeAgo = Math.floor((Date.now() - ticket.timestamp) / 60000); 
+                        const html = `
+                        <div class="ticket-card">
+                            <div class="ticket-info">
+                                <h3>ZONE: ${ticket.zone}</h3>
+                                <p>Picker: ${ticket.casper_id}</p>
+                                <p><small>${timeAgo} mins ago</small></p>
+                            </div>
+                            <button class="btn-resolve" onclick="resolveTicket('${key}')">RESOLVE</button>
+                        </div>`;
+                        listContainer.innerHTML += html;
+                    });
+                }
+                initialLoadComplete = true;
+            });
+
+            onChildAdded(ticketsRef, (snapshot) => {
+                if (initialLoadComplete) {
+                    const ticket = snapshot.val();
+                    triggerAlert(ticket.zone);
+                }
+            });
+
+            window.resolveTicket = resolveTicket;
+        }
+
+        function resolveTicket(ticketId) {
+            if(confirm("Issue Resolved?")) {
+                remove(ref(db, 'tickets/' + ticketId));
+            }
+        }
+    </script>
+</body>
+</html>
