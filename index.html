@@ -51,7 +51,11 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             touch-action: manipulation;
             margin-bottom: 15px;
+            transition: transform 0.1s;
         }
+
+        button:active { transform: scale(0.98); }
+        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
 
         .btn-primary { background-color: #3498db; }
         .btn-danger { background-color: var(--picker-red); }
@@ -110,31 +114,28 @@
             margin: 0;
         }
 
-        /* --- NOTIFICATION POPUP (TOAST) --- */
+        /* --- FIXED NOTIFICATION TOAST --- */
         #notification-toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: var(--dark-bg);
-            color: #fff;
-            text-align: center;
-            border-radius: 4px;
-            padding: 16px;
             position: fixed;
-            z-index: 1000;
+            top: -100px; /* Start hidden above screen */
             left: 50%;
-            top: 30px;
             transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 20px 40px;
+            border-radius: 50px;
+            z-index: 9999; /* Ensure it is on top of everything */
             font-size: 1.2rem;
-            border-bottom: 5px solid var(--highlight);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            transition: top 0.5s, opacity 0.5s;
-            opacity: 0;
+            font-weight: bold;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transition: top 0.5s ease-in-out;
+            border: 2px solid var(--highlight);
+            width: 80%;
+            max-width: 400px;
         }
 
         #notification-toast.show {
-            visibility: visible;
-            top: 50px;
-            opacity: 1;
+            top: 20px; /* Slide down into view */
         }
 
         header {
@@ -143,6 +144,8 @@
             padding: 15px;
             margin-bottom: 20px;
         }
+        
+        #loading-msg { color: #7f8c8d; font-size: 0.9rem; margin-top: 10px;}
     </style>
 </head>
 <body>
@@ -159,7 +162,8 @@
             <h3>Picker / DEO Login</h3>
             <p>Enter ID (Enter 'DEO' for Manager View)</p>
             <input type="text" id="input-casper-id" placeholder="Casper ID / Employee ID">
-            <button class="btn-primary" onclick="handleLogin()">ENTER SHIFT</button>
+            <button id="btn-login" class="btn-primary" onclick="handleLogin()" disabled>Loading System...</button>
+            <p id="loading-msg">Connecting to Database & Fetching Staff List...</p>
         </div>
 
         <div id="view-picker" class="view-section">
@@ -180,16 +184,17 @@
 
             <div id="zone-selector" style="display:none;">
                 <h3>Select Issue Zone:</h3>
-                <div class="zone-grid" id="zone-buttons">
-                    </div>
+                <div class="zone-grid" id="zone-buttons"></div>
                 <button class="btn-primary" style="margin-top:20px; background:#7f8c8d;" onclick="cancelIssue()">CANCEL</button>
             </div>
         </div>
 
         <div id="view-deo" class="view-section">
             <h3>Active Issues Feed</h3>
-            <p style="font-size:0.8rem; color:#888;">Volume up to hear alerts</p>
-            <div id="ticket-list">
+            
+            <button onclick="testNotification()" style="font-size: 0.8rem; padding: 10px; background: #95a5a6; width: auto;">🔊 Test Sound & Popup</button>
+            
+            <div id="ticket-list" style="margin-top: 20px;">
                 <p>No active issues. Production smooth.</p>
             </div>
         </div>
@@ -197,87 +202,126 @@
     </div>
 
     <script type="module">
-        // Import Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, remove, set, onChildAdded } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
         // --- CONFIGURATION ---
-        // TODO: REPLACE THIS OBJECT WITH YOUR ACTUAL FIREBASE CONFIG
         const firebaseConfig = {
-            const firebaseConfig = {
-            apiKey: "AIzaSyBIg1Qdo-GPYFV6ML2JNOLSyx-Jrllmx5s",
-            authDomain: "ardon-4b555.firebaseapp.com",
-            projectId: "ardon-4b555",
-            storageBucket: "ardon-4b555.firebasestorage.app",
-            messagingSenderId: "881199734184",
-            appId: "1:881199734184:web:1531178087c7174b3b519d",
-            measurementId: "G-6S353PQEKG"
-        };
+        apiKey: "AIzaSyBIg1Qdo-GPYFV6ML2JNOLSyx-Jrllmx5s",
+        authDomain: "ardon-4b555.firebaseapp.com",
+        projectId: "ardon-4b555",
+        storageBucket: "ardon-4b555.firebasestorage.app",
+        messagingSenderId: "881199734184",
+        appId: "1:881199734184:web:1531178087c7174b3b519d",
+        measurementId: "G-6S353PQEKG"
+  };
 
-        // Initialize Firebase
+        // TODO: PASTE YOUR GITHUB RAW FILE URL HERE
+        const PICKER_LIST_URL = "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO/main/pickers.json"; 
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- GLOBAL VARIABLES ---
+        let authorizedPickers = [];
         let currentUser = "";
         let currentTicketId = null;
         let isDeoMode = false;
         let initialLoadComplete = false; 
 
-        // --- HELPER FUNCTIONS ---
-        function playVoiceNotification(zone) {
-            // Uses built-in browser text-to-speech
-            if ('speechSynthesis' in window) {
-                const msg = new SpeechSynthesisUtterance(`Attention. Issue reported in Zone ${zone}`);
-                msg.rate = 1; // Speed (0.1 to 10)
-                msg.pitch = 1; // Pitch (0 to 2)
-                window.speechSynthesis.speak(msg);
+        // --- 1. INITIALIZATION & FETCHING LIST ---
+        (async function initSystem() {
+            try {
+                const response = await fetch(PICKER_LIST_URL);
+                if (!response.ok) throw new Error("Failed to load staff list");
+                
+                authorizedPickers = await response.json();
+                
+                document.getElementById('btn-login').disabled = false;
+                document.getElementById('btn-login').innerText = "ENTER SHIFT";
+                document.getElementById('loading-msg').style.display = 'none';
+
+            } catch (error) {
+                console.error(error);
+                // If fetch fails, allow login anyway for testing, but warn user
+                document.getElementById('btn-login').disabled = false;
+                document.getElementById('btn-login').innerText = "ENTER (OFFLINE MODE)";
+                document.getElementById('loading-msg').innerText = "Could not verify ID list. Allowing all logins for now.";
             }
-        }
+        })();
 
-        function showToast(message) {
-            const toast = document.getElementById("notification-toast");
-            toast.innerText = message;
-            toast.className = "show";
-            
-            // Hide after 4 seconds
-            setTimeout(function(){ 
-                toast.className = toast.className.replace("show", ""); 
-            }, 4000);
-        }
-
-        // --- LOGIN LOGIC ---
+        // --- 2. LOGIN LOGIC ---
         window.handleLogin = function() {
             const inputId = document.getElementById('input-casper-id').value.toUpperCase().trim();
             if(!inputId) return alert("Please enter ID");
 
-            currentUser = inputId;
-
-            // Hide Login
-            document.getElementById('view-login').classList.remove('active-view');
-
             if (inputId === 'DEO' || inputId === 'ADMIN') {
-                // Show Manager Dashboard
-                isDeoMode = true;
-                document.getElementById('view-deo').classList.add('active-view');
-                initManagerListener();
+                currentUser = inputId;
+                enterDeoMode();
+                return;
+            }
+
+            // If list failed to load, allow anyone (for safety during setup)
+            let isValidUser = true;
+            if(authorizedPickers.length > 0) {
+                 isValidUser = authorizedPickers.some(id => String(id).toUpperCase() === inputId);
+            }
+
+            if (isValidUser) {
+                currentUser = inputId;
+                enterPickerMode();
             } else {
-                // Show Picker View
-                isDeoMode = false;
-                document.getElementById('view-picker').classList.add('active-view');
-                document.getElementById('picker-id-display').innerText = "ID: " + currentUser;
-                generateZones();
-                initPickerListener(); 
+                alert("Access Denied: ID not found in system list.");
+                document.getElementById('input-casper-id').value = '';
             }
         }
 
-        // --- PICKER LOGIC ---
+        function enterDeoMode() {
+            document.getElementById('view-login').classList.remove('active-view');
+            document.getElementById('view-deo').classList.add('active-view');
+            isDeoMode = true;
+            initManagerListener();
+        }
+
+        function enterPickerMode() {
+            document.getElementById('view-login').classList.remove('active-view');
+            document.getElementById('view-picker').classList.add('active-view');
+            document.getElementById('picker-id-display').innerText = "ID: " + currentUser;
+            isDeoMode = false;
+            generateZones();
+            initPickerListener(); 
+        }
+
+        // --- 3. NOTIFICATION LOGIC (Fixed) ---
+        
+        // Expose this function to the window so the Test Button can use it
+        window.testNotification = function() {
+            triggerAlert("Test Zone A1");
+        }
+
+        function triggerAlert(zoneName) {
+            // 1. Play Sound (Text to Speech)
+            if ('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance(`Alert. Issue in ${zoneName}`);
+                window.speechSynthesis.speak(msg);
+            }
+
+            // 2. Show Visual Toast
+            const toast = document.getElementById("notification-toast");
+            toast.innerText = `⚠️ ISSUE: ${zoneName}`;
+            toast.classList.add("show");
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 5000);
+        }
+
+        // --- 4. APP LOGIC ---
 
         function generateZones() {
             const container = document.getElementById('zone-buttons');
             const aisles = ['A', 'B', 'C', 'D', 'E', 'F'];
             let html = '';
-            
             aisles.forEach(aisle => {
                 for(let i=1; i<=3; i++) { 
                     let zone = aisle + i;
@@ -301,7 +345,6 @@
         function raiseTicket(zone) {
             const ticketsRef = ref(db, 'tickets');
             const newTicketRef = push(ticketsRef); 
-            
             set(newTicketRef, {
                 casper_id: currentUser,
                 zone: zone,
@@ -337,66 +380,59 @@
             onValue(ticketsRef, (snapshot) => {
                 const data = snapshot.val();
                 let myTicketStillExists = false;
-
                 if (data) {
                     Object.keys(data).forEach(key => {
-                        if (key === currentTicketId) {
-                            myTicketStillExists = true;
-                        }
+                        if (key === currentTicketId) myTicketStillExists = true;
                     });
                 }
-
                 if (currentTicketId && !myTicketStillExists) {
                     setPickerState('PICKING');
                 }
             });
         }
 
-        // --- MANAGER (DEO) LOGIC ---
-
         function initManagerListener() {
             const ticketsRef = ref(db, 'tickets');
             const listContainer = document.getElementById('ticket-list');
 
-            // Listener 1: Update the whole list
+            // --- LISTENER 1: Sync the list ---
             onValue(ticketsRef, (snapshot) => {
                 const data = snapshot.val();
                 listContainer.innerHTML = ""; 
-
                 if (!data) {
                     listContainer.innerHTML = "<p style='padding:20px; color:#aaa;'>No active issues. Production smooth.</p>";
-                    return;
+                    // We do NOT return here, because we must set initialLoadComplete
+                } else {
+                    Object.keys(data).forEach(key => {
+                        const ticket = data[key];
+                        const timeAgo = Math.floor((Date.now() - ticket.timestamp) / 60000); 
+                        const html = `
+                        <div class="ticket-card">
+                            <div class="ticket-info">
+                                <h3>ZONE: ${ticket.zone}</h3>
+                                <p>Picker: ${ticket.casper_id}</p>
+                                <p><small>${timeAgo} mins ago</small></p>
+                            </div>
+                            <button class="btn-resolve" onclick="resolveTicket('${key}')">RESOLVE</button>
+                        </div>`;
+                        listContainer.innerHTML += html;
+                    });
                 }
-
-                Object.keys(data).forEach(key => {
-                    const ticket = data[key];
-                    const timeAgo = Math.floor((Date.now() - ticket.timestamp) / 60000); 
-
-                    const html = `
-                    <div class="ticket-card">
-                        <div class="ticket-info">
-                            <h3>ZONE: ${ticket.zone}</h3>
-                            <p>Picker: ${ticket.casper_id}</p>
-                            <p><small>${timeAgo} mins ago</small></p>
-                        </div>
-                        <button class="btn-resolve" onclick="resolveTicket('${key}')">RESOLVE</button>
-                    </div>
-                    `;
-                    listContainer.innerHTML += html;
-                });
                 
+                // Mark that we have finished loading the initial database state
+                // This prevents alerts for old tickets
                 initialLoadComplete = true;
             });
 
-            // Listener 2: Detect NEW items for Voice Alert
+            // --- LISTENER 2: Watch for NEW additions ---
             onChildAdded(ticketsRef, (snapshot) => {
+                // If initial load is done, this must be a NEW ticket
                 if (initialLoadComplete) {
                     const ticket = snapshot.val();
-                    playVoiceNotification(ticket.zone);
-                    showToast(`New Issue at Zone ${ticket.zone}!`);
+                    triggerAlert(ticket.zone);
                 }
             });
-            
+
             window.resolveTicket = resolveTicket;
         }
 
@@ -405,7 +441,6 @@
                 remove(ref(db, 'tickets/' + ticketId));
             }
         }
-
     </script>
 </body>
 </html>
