@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ardon Light v2 - Categorization</title>
+    <title>Ardon Light - Command Center</title>
     <style>
         /* --- CSS STYLES --- */
         :root {
@@ -27,7 +27,7 @@
 
         .container {
             padding: 20px;
-            max-width: 900px;
+            max-width: 1000px; /* Widened for dashboard */
             margin: 0 auto;
         }
 
@@ -67,9 +67,10 @@
         
         .btn-small {
             font-size: 0.9rem; 
-            padding: 10px 15px; 
+            padding: 5px 10px; 
             width: auto; 
             margin: 0;
+            border-radius: 4px;
         }
 
         .view-section { display: none; }
@@ -103,54 +104,69 @@
             color: white;
         }
 
-        /* DEO DASHBOARD STYLES */
-        .ticket-card {
-            background: white;
-            border-left: 10px solid var(--picker-red);
-            padding: 15px;
-            margin-bottom: 15px;
+        /* DEO DASHBOARD GRID LAYOUT */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
             text-align: left;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
-        .ticket-info h3 { margin: 0 0 5px 0; font-size: 1.5rem; }
-        .ticket-info p { margin: 0; color: #7f8c8d; }
-        .btn-resolve {
-            width: auto;
-            padding: 10px 20px;
-            background-color: var(--picker-green);
-            font-size: 1rem;
-            margin: 0;
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
         }
 
-        /* HISTORY TABLE */
-        .history-section {
-            margin-top: 40px;
+        .dashboard-panel {
             background: white;
             padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .history-header {
+
+        /* ACTIVE PICKERS LIST */
+        .picker-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .picker-status-dot {
+            height: 10px; width: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .dot-green { background-color: var(--picker-green); }
+        .dot-red { background-color: var(--picker-red); }
+
+        /* DEO TICKET CARDS */
+        .ticket-card {
+            background: #fff3f3;
+            border-left: 5px solid var(--picker-red);
+            padding: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ticket-info h3 { margin: 0; font-size: 1.2rem; }
+        .ticket-info p { margin: 0; color: #7f8c8d; font-size: 0.9rem;}
+
+        /* HISTORY TABLE */
+        .history-section {
+            margin-top: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #eee; }
         th { background-color: var(--dark-bg); color: white; }
-        .duration-cell { font-weight: bold; color: var(--picker-red); }
 
         /* MODAL (CATEGORY SELECTOR) */
         .modal-overlay {
@@ -183,6 +199,26 @@
             background-color: var(--dark-bg);
             color: white;
             margin: 0;
+        }
+
+        /* --- CALL OUT ALERT OVERLAY (For Pickers) --- */
+        #callout-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: var(--picker-red);
+            z-index: 3000;
+            color: white;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            animation: flashRed 1s infinite;
+        }
+        @keyframes flashRed {
+            0% { background-color: var(--picker-red); }
+            50% { background-color: #c0392b; }
+            100% { background-color: var(--picker-red); }
         }
 
         /* NOTIFICATION TOAST */
@@ -223,10 +259,16 @@
 
     <div id="notification-toast">NEW ISSUE REPORTED!</div>
 
+    <div id="callout-overlay">
+        <h1 style="font-size: 4rem; margin:0;">⚠</h1>
+        <h1>REPORT TO DESK</h1>
+        <p>DEO is calling you.</p>
+        <button onclick="acknowledgeCallout()" style="width: 80%; background: white; color: black; margin-top: 50px;">I AM COMING</button>
+    </div>
+
     <div id="resolve-modal" class="modal-overlay">
         <div class="modal-box">
             <h3>Select Issue Category</h3>
-            <p>What was the cause?</p>
             <div class="cat-grid">
                 <button class="cat-btn" onclick="confirmResolve('WID Issue')">WID Issue</button>
                 <button class="cat-btn" onclick="confirmResolve('IBL Issue')">IBL Issue</button>
@@ -243,10 +285,9 @@
 
         <div id="view-login" class="view-section active-view">
             <h3>Picker / DEO Login</h3>
-            <p>Enter ID (Enter 'DEO' for Manager View)</p>
             <input type="text" id="input-casper-id" placeholder="Casper ID / Employee ID">
             <button id="btn-login" class="btn-primary" onclick="handleLogin()" disabled>Loading System...</button>
-            <p id="loading-msg">Connecting to Database & Fetching Staff List...</p>
+            <p id="loading-msg">Connecting to Database...</p>
         </div>
 
         <div id="view-picker" class="view-section">
@@ -264,7 +305,6 @@
                 <p>Help is coming to <span id="display-zone">--</span></p>
                 <br>
                 <button class="btn-warning" onclick="cancelActiveTicket()">CANCEL / FALSE ALARM</button>
-                <p style="font-size: 0.9rem; margin-top: 5px;">Mistake? Click above to cancel.</p>
             </div>
 
             <div id="zone-selector" style="display:none;">
@@ -275,13 +315,26 @@
         </div>
 
         <div id="view-deo" class="view-section">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3>Active Issues Feed</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <h2 style="margin:0;">Manager Dashboard</h2>
                 <button onclick="testNotification()" class="btn-small" style="background: #95a5a6;">🔊 Test Alert</button>
             </div>
-            
-            <div id="ticket-list" style="margin-top: 20px;">
-                <p>No active issues. Production smooth.</p>
+
+            <div class="dashboard-grid">
+                
+                <div class="dashboard-panel">
+                    <h3>🔴 Active Issues</h3>
+                    <div id="ticket-list">
+                        <p>No active issues.</p>
+                    </div>
+                </div>
+
+                <div class="dashboard-panel">
+                    <h3>🟢 Active Pickers</h3>
+                    <div id="active-pickers-list">
+                        <p>No pickers online.</p>
+                    </div>
+                </div>
             </div>
 
             <div class="history-section">
@@ -289,7 +342,6 @@
                     <h3 style="margin:0;">Downtime Logs</h3>
                     <button onclick="downloadCSV()" class="btn-small btn-success">⬇️ Export CSV</button>
                 </div>
-                
                 <table>
                     <thead>
                         <tr>
@@ -297,11 +349,10 @@
                             <th>ID</th>
                             <th>Zone</th>
                             <th>Category</th>
-                            <th>Downtime</th>
+                            <th>Duration</th>
                         </tr>
                     </thead>
-                    <tbody id="history-list">
-                        </tbody>
+                    <tbody id="history-list"></tbody>
                 </table>
             </div>
         </div>
@@ -310,7 +361,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, remove, set, onChildAdded, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, remove, set, onChildAdded, get, update, onDisconnect } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
         // --- CONFIGURATION ---
         const firebaseConfig = {
@@ -323,7 +374,6 @@
             measurementId: "G-6S353PQEKG"
         };
 
-        // TODO: PASTE YOUR GITHUB RAW FILE URL HERE
         const PICKER_LIST_URL = "https://raw.githubusercontent.com/Pranav-In11/ArdonLight/main/pickers.json"; 
 
         const app = initializeApp(firebaseConfig);
@@ -336,26 +386,19 @@
         let initialLoadComplete = false; 
         
         let allHistoryData = [];
-        let pendingResolveId = null; // Temp variable to store ticket ID while modal is open
+        let pendingResolveId = null; 
 
         // --- 1. INITIALIZATION ---
         (async function initSystem() {
             try {
                 const response = await fetch(PICKER_LIST_URL);
-                if (!response.ok) throw new Error("Failed to load staff list");
-                
-                authorizedPickers = await response.json();
-                
-                document.getElementById('btn-login').disabled = false;
-                document.getElementById('btn-login').innerText = "ENTER SHIFT";
-                document.getElementById('loading-msg').style.display = 'none';
-
-            } catch (error) {
-                console.error(error);
-                document.getElementById('btn-login').disabled = false;
-                document.getElementById('btn-login').innerText = "ENTER (OFFLINE MODE)";
-                document.getElementById('loading-msg').innerText = "Could not verify ID list. Allowing all logins for now.";
-            }
+                if (response.ok) authorizedPickers = await response.json();
+            } catch (error) { console.error("List fetch error", error); }
+            
+            // Enable login regardless of list fetch success for robustness
+            document.getElementById('btn-login').disabled = false;
+            document.getElementById('btn-login').innerText = "ENTER SHIFT";
+            document.getElementById('loading-msg').style.display = 'none';
         })();
 
         // --- 2. LOGIN LOGIC ---
@@ -370,6 +413,7 @@
                 return;
             }
 
+            // Simple validation
             let isValidUser = true;
             if(authorizedPickers.length > 0) {
                  isValidUser = authorizedPickers.some(id => String(id).toUpperCase() === inputId);
@@ -379,8 +423,7 @@
                 currentUser = inputId;
                 enterPickerMode();
             } else {
-                alert("Access Denied: ID not found in system list.");
-                document.getElementById('input-casper-id').value = '';
+                alert("Access Denied.");
             }
         }
 
@@ -390,6 +433,7 @@
             isDeoMode = true;
             initManagerListener();
             initHistoryListener(); 
+            initActivePickersListener(); // View who is online
         }
 
         function enterPickerMode() {
@@ -399,76 +443,83 @@
             isDeoMode = false;
             generateZones();
             initPickerListener(); 
+            
+            // --- PRESENCE SYSTEM: REGISTER PICKER ONLINE ---
+            const myPresenceRef = ref(db, 'active_pickers/' + currentUser);
+            
+            // 1. Set myself as online
+            set(myPresenceRef, {
+                status: 'PICKING',
+                last_seen: Date.now(),
+                call_out: false
+            });
+
+            // 2. If I disconnect (close app), remove me from list
+            onDisconnect(myPresenceRef).remove();
+
+            // 3. Listen for Call Outs
+            onValue(myPresenceRef, (snapshot) => {
+                const data = snapshot.val();
+                if(data && data.call_out === true) {
+                    // TRIGGER ALERT OVERLAY
+                    document.getElementById('callout-overlay').style.display = 'flex';
+                    playVoiceAlert("Attention. Report to desk immediately.");
+                }
+            });
         }
 
-        // --- 3. HELPERS ---
+        // --- 3. HELPER FUNCTIONS ---
         function formatDuration(ms) {
             const seconds = Math.floor((ms / 1000) % 60);
             const minutes = Math.floor((ms / (1000 * 60)) % 60);
             return `${minutes}m ${seconds}s`;
         }
         
-       // Helper: Formats time as HH:MM:SS
         function formatTime(timestamp) {
             const d = new Date(timestamp);
-            const hours = String(d.getHours()).padStart(2, '0');
-            const minutes = String(d.getMinutes()).padStart(2, '0');
-            const seconds = String(d.getSeconds()).padStart(2, '0'); // Added Seconds
-            return `${hours}:${minutes}:${seconds}`;
+            return d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0') + ":" + d.getSeconds().toString().padStart(2,'0');
         }
         
         function formatDate(timestamp) {
-            const d = new Date(timestamp);
-            return d.toLocaleDateString();
+            return new Date(timestamp).toLocaleDateString();
         }
 
-        // --- 4. CSV EXPORT LOGIC ---
+        function playVoiceAlert(text) {
+             if ('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance(text);
+                window.speechSynthesis.speak(msg);
+            }
+        }
 
+        // --- 4. CSV EXPORT ---
         window.downloadCSV = function() {
-    if(!allHistoryData || allHistoryData.length === 0) {
-        alert("No history data available to export.");
-        return;
-    }
+            if(!allHistoryData || allHistoryData.length === 0) {
+                alert("No data.");
+                return;
+            }
+            let csvContent = "data:text/csv;charset=utf-8,Date,Time,Picker ID,Zone,Category,Duration (Seconds)\n";
+            allHistoryData.forEach(row => {
+                const date = formatDate(row.start_time);
+                const time = formatTime(row.start_time);
+                const durationSec = Math.round(row.duration_ms / 1000);
+                const category = row.category ? `"${row.category}"` : "Unknown";
+                csvContent += `${date},${time},${row.casper_id},${row.zone},${category},${durationSec}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `ardon_report_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
 
-    // CSV Header (Keeps Date and Time separate)
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Date,Time,Picker ID,Zone,Category,Duration (Seconds)\n";
-
-    // CSV Rows
-    allHistoryData.forEach(row => {
-        const date = formatDate(row.start_time); // Uses existing formatDate function
-        const time = formatTime(row.start_time); // Uses NEW formatTime with seconds
-        const durationSec = Math.round(row.duration_ms / 1000);
-        
-        // Handle potential commas in category name
-        const category = row.category ? `"${row.category}"` : "Unknown";
-        
-        const rowString = `${date},${time},${row.casper_id},${row.zone},${category},${durationSec}`;
-        csvContent += rowString + "\n";
-    });
-
-    // Trigger Download
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    
-    // Filename with date
-    const dateStr = new Date().toISOString().slice(0,10);
-    link.setAttribute("download", `ardon_downtime_${dateStr}.csv`);
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);}
-
-        // --- 5. TICKET ACTIONS (RESOLVE & ARCHIVE) ---
-        
-        // Step A: DEO Clicks Resolve -> Open Modal
+        // --- 5. TICKET & MODAL ACTIONS ---
         window.promptResolve = function(ticketId) {
             pendingResolveId = ticketId;
             document.getElementById('resolve-modal').style.display = 'flex';
         }
 
-        // Step B: DEO Clicks Category -> Save & Close
         window.confirmResolve = function(category) {
             if(pendingResolveId) {
                 archiveAndResolve(pendingResolveId, category);
@@ -476,13 +527,12 @@
             }
         }
 
-        // Step C: Close Modal (Cancel)
         window.closeModal = function() {
             document.getElementById('resolve-modal').style.display = 'none';
             pendingResolveId = null;
         }
 
-        // Step D: Write to DB
+        // --- 6. CORE LOGIC (DB) ---
         function archiveAndResolve(ticketId, category) {
             const ticketRef = ref(db, 'tickets/' + ticketId);
             
@@ -492,74 +542,38 @@
                     const endTime = Date.now();
                     const duration = endTime - ticket.timestamp;
 
-                    const historyRef = ref(db, 'history');
-                    push(historyRef, {
+                    // Save to history
+                    push(ref(db, 'history'), {
                         casper_id: ticket.casper_id,
                         zone: ticket.zone,
                         start_time: ticket.timestamp,
                         end_time: endTime,
                         duration_ms: duration,
-                        category: category // Saved Category
+                        category: category
                     });
 
+                    // Remove ticket
                     remove(ticketRef);
+                    
+                    // Update Presence Status back to Picking
+                    if(ticket.casper_id) {
+                        update(ref(db, 'active_pickers/' + ticket.casper_id), { status: 'PICKING' });
+                    }
                 }
             });
         }
 
-        // Called by Picker (False Alarm)
+        // --- 7. PICKER ACTIONS ---
+        
         window.cancelActiveTicket = function() {
             if(currentTicketId) archiveAndResolve(currentTicketId, 'False Alarm');
         }
 
-        // --- 6. NOTIFICATION ---
-        window.testNotification = function() { triggerAlert("Test Zone A1"); }
-
-        function triggerAlert(zoneName) {
-            const message = `Issue reported in Zone ${zoneName}`;
-            if ('speechSynthesis' in window) {
-                const msg = new SpeechSynthesisUtterance(`Alert. ${message}`);
-                window.speechSynthesis.speak(msg);
-            }
-            const toast = document.getElementById("notification-toast");
-            toast.innerText = `⚠️ ${message}`;
-            toast.classList.add("show");
-            setTimeout(() => { toast.classList.remove("show"); }, 5000);
-
-            if ("Notification" in window && Notification.permission === "granted") {
-                const notification = new Notification("Ardon Light Alert", {
-                    body: message,
-                    icon: "https://cdn-icons-png.flaticon.com/512/564/564619.png",
-                    requireInteraction: true 
-                });
-                notification.onclick = function() { window.focus(); this.close(); };
-            }
-        }
-
-        // --- 7. APP LOGIC ---
-
-        function generateZones() {
-            const container = document.getElementById('zone-buttons');
-            const aisles = ['A', 'B', 'C', 'D', 'E', 'F'];
-            let html = '';
-            aisles.forEach(aisle => {
-                for(let i=1; i<=3; i++) { 
-                    let zone = aisle + i;
-                    html += `<button class="zone-btn" onclick="raiseTicket('${zone}')">${zone}</button>`;
-                }
-            });
-            container.innerHTML = html;
-            window.raiseTicket = raiseTicket;
-        }
-
-        window.toggleZoneSelector = function() {
-            document.getElementById('picker-controls').style.display = 'none';
-            document.getElementById('zone-selector').style.display = 'grid';
-        }
-
-        window.cancelZoneSelection = function() {
-            document.getElementById('picker-controls').style.display = 'block';
-            document.getElementById('zone-selector').style.display = 'none';
+        // Picker Acknowledges the "Call Out"
+        window.acknowledgeCallout = function() {
+            document.getElementById('callout-overlay').style.display = 'none';
+            // Reset call_out flag in DB
+            update(ref(db, 'active_pickers/' + currentUser), { call_out: false });
         }
 
         function raiseTicket(zone) {
@@ -572,6 +586,9 @@
             }).then(() => {
                 currentTicketId = newTicketRef.key;
                 setPickerState('HOLD', zone);
+                
+                // Update Presence Status to ISSUE
+                update(ref(db, 'active_pickers/' + currentUser), { status: 'ISSUE (' + zone + ')' });
             });
         }
 
@@ -596,6 +613,7 @@
         }
 
         function initPickerListener() {
+            // Watch my own ticket status
             const ticketsRef = ref(db, 'tickets');
             onValue(ticketsRef, (snapshot) => {
                 const data = snapshot.val();
@@ -611,6 +629,8 @@
             });
         }
 
+        // --- 8. DEO LISTENERS ---
+
         function initManagerListener() {
             const ticketsRef = ref(db, 'tickets');
             const listContainer = document.getElementById('ticket-list');
@@ -619,7 +639,7 @@
                 const data = snapshot.val();
                 listContainer.innerHTML = ""; 
                 if (!data) {
-                    listContainer.innerHTML = "<p style='padding:20px; color:#aaa;'>No active issues. Production smooth.</p>";
+                    listContainer.innerHTML = "<p>No active issues.</p>";
                 } else {
                     Object.keys(data).forEach(key => {
                         const ticket = data[key];
@@ -640,14 +660,50 @@
             });
 
             onChildAdded(ticketsRef, (snapshot) => {
-                if (initialLoadComplete) {
-                    const ticket = snapshot.val();
-                    triggerAlert(ticket.zone);
-                }
+                if (initialLoadComplete) triggerAlert(snapshot.val().zone);
             });
         }
 
-        // --- 8. HISTORY LISTENER ---
+        // --- NEW: ACTIVE PICKERS LISTENER ---
+        function initActivePickersListener() {
+            const pickersRef = ref(db, 'active_pickers');
+            const listContainer = document.getElementById('active-pickers-list');
+
+            onValue(pickersRef, (snapshot) => {
+                const data = snapshot.val();
+                listContainer.innerHTML = "";
+                
+                if (!data) {
+                    listContainer.innerHTML = "<p>No pickers online.</p>";
+                    return;
+                }
+
+                Object.keys(data).forEach(pickerId => {
+                    const picker = data[pickerId];
+                    const isIssue = picker.status.includes('ISSUE');
+                    const dotClass = isIssue ? 'dot-red' : 'dot-green';
+                    
+                    const html = `
+                    <div class="picker-item">
+                        <div>
+                            <span class="picker-status-dot ${dotClass}"></span>
+                            <strong>${pickerId}</strong> 
+                            <span style="color:#7f8c8d; font-size:0.9rem;"> - ${picker.status}</span>
+                        </div>
+                        <button class="btn-small" style="background:#e67e22;" onclick="callOutPicker('${pickerId}')">📢 CALL</button>
+                    </div>`;
+                    listContainer.innerHTML += html;
+                });
+            });
+
+            // Expose call out function
+            window.callOutPicker = function(pickerId) {
+                if(confirm("Send 'REPORT TO DESK' alert to " + pickerId + "?")) {
+                    update(ref(db, 'active_pickers/' + pickerId), { call_out: true });
+                }
+            }
+        }
+
         function initHistoryListener() {
             const historyRef = ref(db, 'history');
             const historyTable = document.getElementById('history-list');
@@ -655,28 +711,66 @@
             onValue(historyRef, (snapshot) => {
                 const data = snapshot.val();
                 historyTable.innerHTML = "";
-
                 if(data) {
                     allHistoryData = Object.values(data).sort((a,b) => b.end_time - a.end_time);
-                    const displayEntries = allHistoryData.slice(0, 20);
-
-                    displayEntries.forEach(entry => {
-                        // Color code based on category or status
-                        let statusColor = "#2c3e50"; // Default black/grey
-                        if (entry.category === 'False Alarm') statusColor = '#e67e22'; // Orange
-                        else statusColor = '#2ecc71'; // Green for resolved issues
-
+                    allHistoryData.slice(0, 20).forEach(entry => {
                         const row = `<tr>
                             <td>${formatTime(entry.start_time)}</td>
                             <td>${entry.casper_id}</td>
                             <td>${entry.zone}</td>
-                            <td style="color:${statusColor}; font-weight:bold;">${entry.category || 'Resolved'}</td>
+                            <td>${entry.category || 'Resolved'}</td>
                             <td class="duration-cell">${formatDuration(entry.duration_ms)}</td>
                         </tr>`;
                         historyTable.innerHTML += row;
                     });
                 }
             });
+        }
+
+        // --- 9. NOTIFICATION ---
+        window.testNotification = function() { triggerAlert("Test Zone A1"); }
+
+        function triggerAlert(zoneName) {
+            const message = `Issue reported in Zone ${zoneName}`;
+            playVoiceAlert(`Alert. ${message}`);
+            
+            const toast = document.getElementById("notification-toast");
+            toast.innerText = `⚠️ ${message}`;
+            toast.classList.add("show");
+            setTimeout(() => { toast.classList.remove("show"); }, 5000);
+
+            if ("Notification" in window && Notification.permission === "granted") {
+                const notification = new Notification("Ardon Light Alert", {
+                    body: message,
+                    icon: "https://cdn-icons-png.flaticon.com/512/564/564619.png",
+                    requireInteraction: true 
+                });
+                notification.onclick = function() { window.focus(); this.close(); };
+            }
+        }
+
+        function generateZones() {
+            const container = document.getElementById('zone-buttons');
+            const aisles = ['A', 'B', 'C', 'D', 'E', 'F'];
+            let html = '';
+            aisles.forEach(aisle => {
+                for(let i=1; i<=3; i++) { 
+                    let zone = aisle + i;
+                    html += `<button class="zone-btn" onclick="raiseTicket('${zone}')">${zone}</button>`;
+                }
+            });
+            container.innerHTML = html;
+            window.raiseTicket = raiseTicket;
+        }
+
+        window.toggleZoneSelector = function() {
+            document.getElementById('picker-controls').style.display = 'none';
+            document.getElementById('zone-selector').style.display = 'grid';
+        }
+
+        window.cancelZoneSelection = function() {
+            document.getElementById('picker-controls').style.display = 'block';
+            document.getElementById('zone-selector').style.display = 'none';
         }
     </script>
 </body>
