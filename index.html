@@ -408,9 +408,13 @@
             return `${minutes}m ${seconds}s`;
         }
         
+       // Helper: Formats time as HH:MM:SS
         function formatTime(timestamp) {
             const d = new Date(timestamp);
-            return d.getHours() + ":" + String(d.getMinutes()).padStart(2, '0');
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            const seconds = String(d.getSeconds()).padStart(2, '0'); // Added Seconds
+            return `${hours}:${minutes}:${seconds}`;
         }
         
         function formatDate(timestamp) {
@@ -419,34 +423,42 @@
         }
 
         // --- 4. CSV EXPORT LOGIC ---
+
         window.downloadCSV = function() {
-            if(!allHistoryData || allHistoryData.length === 0) {
-                alert("No history data available to export.");
-                return;
-            }
+    if(!allHistoryData || allHistoryData.length === 0) {
+        alert("No history data available to export.");
+        return;
+    }
 
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Date,Time,Picker ID,Zone,Category,Duration (Seconds)\n";
+    // CSV Header (Keeps Date and Time separate)
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Date,Time,Picker ID,Zone,Category,Duration (Seconds)\n";
 
-            allHistoryData.forEach(row => {
-                const date = formatDate(row.start_time);
-                const time = formatTime(row.start_time);
-                const durationSec = Math.round(row.duration_ms / 1000);
-                // Handle potential commas in category name
-                const category = row.category ? `"${row.category}"` : "Unknown";
-                
-                const rowString = `${date},${time},${row.casper_id},${row.zone},${category},${durationSec}`;
-                csvContent += rowString + "\n";
-            });
+    // CSV Rows
+    allHistoryData.forEach(row => {
+        const date = formatDate(row.start_time); // Uses existing formatDate function
+        const time = formatTime(row.start_time); // Uses NEW formatTime with seconds
+        const durationSec = Math.round(row.duration_ms / 1000);
+        
+        // Handle potential commas in category name
+        const category = row.category ? `"${row.category}"` : "Unknown";
+        
+        const rowString = `${date},${time},${row.casper_id},${row.zone},${category},${durationSec}`;
+        csvContent += rowString + "\n";
+    });
 
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "ardon_downtime_report_v2.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+    // Trigger Download
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    
+    // Filename with date
+    const dateStr = new Date().toISOString().slice(0,10);
+    link.setAttribute("download", `ardon_downtime_${dateStr}.csv`);
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);}
 
         // --- 5. TICKET ACTIONS (RESOLVE & ARCHIVE) ---
         
