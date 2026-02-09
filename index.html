@@ -3,90 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ardon Light v3.0</title>
+    <title>Ardon Light v3.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- MODERN VARIABLES --- */
+        /* --- VARIABLES --- */
         :root {
-            --primary: #2563EB;      /* Modern Blue */
-            --success: #10B981;      /* Emerald Green */
-            --danger: #EF4444;       /* Bright Red */
-            --warning: #F59E0B;      /* Amber */
-            --dark: #1F2937;         /* Dark Grey */
-            --light: #F3F4F6;        /* Light Grey Background */
-            --white: #FFFFFF;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --radius: 12px;
+            --primary: #2563EB; --success: #10B981; --danger: #EF4444; 
+            --warning: #F59E0B; --dark: #1F2937; --light: #F3F4F6; 
+            --white: #FFFFFF; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1); --radius: 12px;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--light);
-            color: var(--dark);
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
-            overscroll-behavior: none;
-        }
-
-        /* --- HEADER --- */
-        header {
-            background-color: var(--white);
-            padding: 1rem 1.5rem;
-            box-shadow: var(--shadow);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        header h2 {
-            margin: 0;
-            font-size: 1.5rem;
-            color: var(--primary);
-            font-weight: 800;
-            letter-spacing: -0.025em;
+            font-family: 'Inter', sans-serif; background-color: var(--light); color: var(--dark);
+            margin: 0; padding: 0; overscroll-behavior: none;
         }
 
         /* --- LAYOUT --- */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1.5rem;
+        .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+        header {
+            background-color: var(--white); padding: 1rem 1.5rem; box-shadow: var(--shadow);
+            display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100;
         }
+        header h2 { margin: 0; font-size: 1.5rem; color: var(--primary); font-weight: 800; }
 
         /* --- BUTTONS --- */
         button {
-            border: none;
-            border-radius: 8px;
-            padding: 12px 20px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border: none; border-radius: 8px; padding: 12px 20px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
         }
         button:active { transform: scale(0.98); }
-        button:disabled { opacity: 0.6; cursor: not-allowed; }
-
         .btn-primary { background-color: var(--primary); color: white; width: 100%; }
         .btn-danger { background-color: var(--danger); color: white; width: 100%; }
         .btn-warning { background-color: var(--warning); color: white; width: 100%; }
         .btn-outline { background-color: white; border: 1px solid #D1D5DB; color: var(--dark); }
         .btn-call { background-color: var(--warning); color: white; padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; }
 
-        /* --- INPUTS --- */
         input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #D1D5DB;
-            border-radius: 8px;
-            font-size: 1rem;
-            margin-bottom: 1rem;
-            box-sizing: border-box;
-            outline: none;
+            width: 100%; padding: 12px; border: 1px solid #D1D5DB; border-radius: 8px;
+            font-size: 1rem; margin-bottom: 1rem; box-sizing: border-box; outline: none;
         }
         input:focus { border-color: var(--primary); ring: 2px solid var(--primary); }
 
@@ -95,66 +49,39 @@
         .active-view { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- LOGIN CARD --- */
-        .login-card {
-            background: white;
-            padding: 2rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            max-width: 400px;
-            margin: 4rem auto;
-            text-align: center;
-        }
-
-        /* --- PICKER UI --- */
+        /* --- PICKER --- */
         .status-hero {
-            padding: 3rem 1rem;
-            border-radius: var(--radius);
-            color: white;
-            text-align: center;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow);
-            transition: background 0.5s ease;
+            padding: 3rem 1rem; border-radius: var(--radius); color: white; text-align: center;
+            margin-bottom: 2rem; box-shadow: var(--shadow); transition: background 0.5s ease;
         }
         .bg-picking { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
         .bg-hold { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); animation: pulse-red 2s infinite; }
         @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-
-        .status-hero h1 { font-size: 3rem; margin: 0; font-weight: 800; }
         
         .zone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1rem; }
         .zone-btn { background-color: white; border: 1px solid #E5E7EB; color: var(--dark); padding: 1.5rem 0; font-size: 1.25rem; border-radius: 8px; }
-        
-        /* PICKER FORM MODAL */
+
+        /* --- FORM STYLES --- */
         .form-section { margin-bottom: 15px; text-align: left; }
         .form-label { font-size: 0.9rem; font-weight: 600; color: #374151; margin-bottom: 8px; display: block; }
         .type-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
         .type-btn { padding: 10px; font-size: 0.85rem; background: #F3F4F6; color: var(--dark); border: 2px solid transparent; }
         .type-btn.selected { border-color: var(--primary); background: #EFF6FF; color: var(--primary); }
 
-        /* --- DASHBOARD --- */
+        /* --- DEO DASHBOARD --- */
         .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
         @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
 
         .card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; border: 1px solid #F3F4F6; }
         .card-header { padding: 1rem 1.5rem; background-color: #F9FAFB; border-bottom: 1px solid #E5E7EB; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
         .card-body { padding: 0; max-height: 500px; overflow-y: auto; }
-        .empty-state { padding: 2rem; text-align: center; color: #9CA3AF; }
-
+        
         .ticket-item { padding: 1rem 1.5rem; border-bottom: 1px solid #F3F4F6; display: flex; justify-content: space-between; align-items: center; }
         .ticket-details h4 { margin: 0; font-size: 1.1rem; color: var(--danger); display: flex; align-items: center; gap: 8px;}
-        .ticket-meta { display: flex; gap: 10px; font-size: 0.85rem; color: #4B5563; margin-top: 4px; }
-        .meta-tag { background: #F3F4F6; padding: 2px 6px; border-radius: 4px; border: 1px solid #E5E7EB; }
-
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
-        .badge-red { background: #FEE2E2; color: #991B1B; }
-
-        /* --- HISTORY TABLE --- */
-        .history-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        .history-table th { background-color: #F9FAFB; padding: 12px; text-align: left; }
-        .history-table td { padding: 12px; border-bottom: 1px solid #F3F4F6; }
-
-        /* --- OVERLAYS --- */
+        .ticket-meta { margin-top: 5px; font-size: 0.9rem; color: #4B5563; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; background: #FEE2E2; color: #991B1B; }
+        
+        /* --- MODALS --- */
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
         .modal { background: white; padding: 2rem; border-radius: var(--radius); width: 90%; max-width: 450px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
         
@@ -163,6 +90,11 @@
 
         #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background-color: var(--dark); color: white; padding: 12px 24px; border-radius: 50px; z-index: 9999; transition: top 0.4s; }
         #toast.show { top: 24px; }
+        
+        /* History Table */
+        .history-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .history-table th { background-color: #F9FAFB; padding: 12px; text-align: left; }
+        .history-table td { padding: 12px; border-bottom: 1px solid #F3F4F6; }
     </style>
 </head>
 <body>
@@ -178,38 +110,59 @@
 
     <div id="picker-input-modal" class="overlay">
         <div class="modal" style="text-align: left;">
-            <h3 style="margin-top:0;">Issue Details</h3>
+            <h3 style="margin-top:0;">Raise Issue</h3>
             <p id="modal-zone-display" style="color:var(--primary); font-weight:bold; margin-bottom: 20px;">Zone: --</p>
 
             <div class="form-section">
-                <label class="form-label">Type of Issue</label>
+                <label class="form-label">Probable Cause (Notify DEO)</label>
                 <div class="type-grid">
-                    <button class="type-btn" onclick="selectIssueType(this, 'WID Issue')">WID Issue</button>
-                    <button class="type-btn" onclick="selectIssueType(this, 'Printer Issue')">Printer</button>
-                    <button class="type-btn" onclick="selectIssueType(this, 'Tech Issue')">Tech Issue</button>
+                    <button class="type-btn" onclick="selectPickerType(this, 'WID Issue')">WID</button>
+                    <button class="type-btn" onclick="selectPickerType(this, 'Printer Issue')">Printer</button>
+                    <button class="type-btn" onclick="selectPickerType(this, 'Tech Issue')">Tech</button>
                 </div>
             </div>
 
             <div class="form-section">
-                <label class="form-label">Picklist ID</label>
-                <input type="text" id="input-picklist-id" placeholder="Scan or Type (e.g. PL12345)">
+                <label class="form-label">Picklist ID (Required)</label>
+                <input type="text" id="input-picklist-id" placeholder="Scan or Type PL...">
             </div>
 
             <div style="display:flex; gap:10px; margin-top:20px;">
                 <button class="btn-outline" onclick="closePickerModal()">Cancel</button>
-                <button class="btn-primary" onclick="submitTicketFinal()">Submit Ticket</button>
+                <button class="btn-primary" onclick="submitTicketFinal()">Notify DEO</button>
             </div>
+        </div>
+    </div>
+
+    <div id="resolve-modal" class="overlay">
+        <div class="modal">
+            <h3 style="margin-top:0;">Final Resolution</h3>
+            <p style="color: #6B7280; font-size:0.9rem;">Select the <b>Final Category</b> to close ticket.</p>
+            <div style="text-align:left; background:#F3F4F6; padding:10px; border-radius:8px; margin-bottom:15px; font-size:0.85rem;">
+                <div><b>Picklist:</b> <span id="res-pl-id">--</span></div>
+                <div><b>Reported as:</b> <span id="res-reported">--</span></div>
+            </div>
+            
+            <div class="type-grid" style="grid-template-columns: 1fr 1fr;">
+                <button class="type-btn" onclick="confirmDeoResolve('WID Issue')">WID Issue</button>
+                <button class="type-btn" onclick="confirmDeoResolve('IBL Issue')">IBL Issue</button>
+                <button class="type-btn" onclick="confirmDeoResolve('PNF Issue')">PNF Issue</button>
+                <button class="type-btn" onclick="confirmDeoResolve('Packing Cancel')">Packing Cancel</button>
+                <button class="type-btn" onclick="confirmDeoResolve('Tech Issue')">Tech Issue</button>
+                <button class="type-btn" onclick="confirmDeoResolve('Specification')">Specification</button>
+            </div>
+            <button class="btn-outline" style="margin-top: 15px; width: 100%;" onclick="closeResolveModal()">Cancel</button>
         </div>
     </div>
 
     <header>
         <div style="display:flex; align-items:center; gap:10px;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-            <h2>Ardon Light v3.0</h2>
+            <h2>Ardon Light v3.1</h2>
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
             <div id="user-badge" style="display:none; font-weight:600; font-size: 0.9rem;"></div>
-            <button id="logout-btn" onclick="handleLogout()" style="display:none;">Logout</button>
+            <button id="logout-btn" class="btn-outline" onclick="handleLogout()" style="display:none; padding: 6px 12px; font-size:0.85rem;">Logout</button>
         </div>
     </header>
 
@@ -226,22 +179,20 @@
 
         <div id="view-picker" class="view-section">
             <div id="picker-status-card" class="status-hero bg-picking">
-                <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8;">Current Status</div>
                 <h1 id="status-text">PICKING</h1>
                 <p id="display-zone-info" style="display:none;">Help coming to <span id="display-zone" style="font-weight:bold;">--</span></p>
             </div>
 
             <div id="picker-controls">
-                <button class="btn-danger" style="height: 120px; font-size: 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;" onclick="toggleZoneSelector()">
-                    <span style="font-size: 2rem;">✋</span>
-                    <span>RAISE ISSUE</span>
+                <button class="btn-danger" style="height: 120px; font-size: 1.5rem;" onclick="toggleZoneSelector()">
+                    ✋ RAISE ISSUE
                 </button>
             </div>
 
             <div id="picker-waiting" style="display:none;">
                 <div style="background: white; padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; margin-bottom: 1rem;">
                     <h3 style="margin-top: 0;">DEO Notified</h3>
-                    <p><strong>Issue:</strong> <span id="wait-type">--</span></p>
+                    <p><strong>Reported:</strong> <span id="wait-type">--</span></p>
                     <p><strong>Picklist:</strong> <span id="wait-pl">--</span></p>
                     <p style="color: #6B7280; margin-top:10px;">Please wait at your location.</p>
                 </div>
@@ -285,12 +236,12 @@
 
             <div class="card">
                 <div class="card-header">
-                    <span>📋 Logs</span>
+                    <span>📋 Logs (Final Bucketing)</span>
                     <button onclick="downloadCSV()" style="font-size: 0.8rem; padding: 6px 12px; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 6px; color: var(--dark);">⬇ CSV</button>
                 </div>
                 <div class="card-body">
                     <table class="history-table">
-                        <thead><tr><th>Time</th><th>ID</th><th>Zone</th><th>Issue</th><th>Picklist</th><th>Duration</th></tr></thead>
+                        <thead><tr><th>Time</th><th>ID</th><th>Zone</th><th>Final Category</th><th>Picklist</th><th>Time Lost</th></tr></thead>
                         <tbody id="history-list"></tbody>
                     </table>
                 </div>
@@ -304,7 +255,7 @@
         import { getDatabase, ref, push, onValue, remove, set, onChildAdded, get, update, onDisconnect } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
         // --- REPLACE WITH YOUR FIREBASE CONFIG ---
-         // --- CONFIGURATION ---
+        // --- CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyBIg1Qdo-GPYFV6ML2JNOLSyx-Jrllmx5s",
             authDomain: "ardon-4b555.firebaseapp.com",
@@ -315,8 +266,7 @@
             measurementId: "G-6S353PQEKG"
         };
 
-        const PICKER_LIST_URL = "https://raw.githubusercontent.com/Pranav-In11/ArdonLight/main/pickers.json";  
-
+        const PICKER_LIST_URL = "https://raw.githubusercontent.com/Pranav-In11/ArdonLight/main/pickers.json"; 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
@@ -330,7 +280,10 @@
 
         // Temporary Data for Picker Form
         let tempZone = "";
-        let tempIssueType = "";
+        let tempPickerHint = "";
+        
+        // Temporary Data for DEO Resolve
+        let pendingResolveTicket = null;
 
         // --- INIT ---
         (async function initSystem() {
@@ -416,9 +369,8 @@
             });
         }
 
-        // --- PICKER WORKFLOW (NEW MULTI-STEP) ---
+        // --- PICKER WORKFLOW (STEP 1 & 2) ---
         
-        // 1. Zone Selection
         window.toggleZoneSelector = () => {
             document.getElementById('picker-controls').style.display = 'none';
             document.getElementById('zone-selector').style.display = 'block';
@@ -428,50 +380,43 @@
             document.getElementById('zone-selector').style.display = 'none';
         }
 
-        // 2. Open Detail Modal
         window.openDetailForm = function(zone) {
             tempZone = zone;
-            tempIssueType = ""; // Reset
-            document.getElementById('input-picklist-id').value = ""; // Reset
-            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected')); // Reset UI
-            
+            tempPickerHint = "";
+            document.getElementById('input-picklist-id').value = "";
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
             document.getElementById('modal-zone-display').innerText = `Zone: ${zone}`;
             document.getElementById('picker-input-modal').style.display = 'flex';
         }
 
-        // 3. UI Helpers for Modal
-        window.selectIssueType = function(btn, type) {
-            tempIssueType = type;
+        window.selectPickerType = function(btn, type) {
+            tempPickerHint = type;
             document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
         }
         window.closePickerModal = () => document.getElementById('picker-input-modal').style.display = 'none';
 
-        // 4. Submit Final Ticket
         window.submitTicketFinal = function() {
             const picklistId = document.getElementById('input-picklist-id').value.trim().toUpperCase();
             
-            if(!tempIssueType) return showToast("Select Issue Type");
+            if(!tempPickerHint) return showToast("Select Cause");
             if(!picklistId) return showToast("Enter Picklist ID");
-            if(picklistId.length < 5) return showToast("Invalid Picklist ID");
 
-            // Valid -> Send to DB
             const newTicketRef = push(ref(db, 'tickets')); 
             set(newTicketRef, {
                 casper_id: currentUser,
                 zone: tempZone,
-                issue_type: tempIssueType,
+                picker_hint_type: tempPickerHint, // Picker's "Intimation"
                 picklist_id: picklistId,
                 timestamp: Date.now()
             }).then(() => {
                 currentTicketId = newTicketRef.key;
-                setPickerState('HOLD', tempZone, tempIssueType, picklistId);
+                setPickerState('HOLD', tempZone, tempPickerHint, picklistId);
                 update(ref(db, 'active_pickers/' + currentUser), { status: 'ISSUE (' + tempZone + ')' });
                 closePickerModal();
             });
         }
 
-        // --- UI STATE UPDATES ---
         function setPickerState(state, zone, type, pl) {
             const hero = document.getElementById('picker-status-card');
             
@@ -480,11 +425,8 @@
                 document.getElementById('status-text').innerText = 'STOPPED';
                 document.getElementById('display-zone').innerText = zone;
                 document.getElementById('display-zone-info').style.display = 'block';
-                
-                // Set waiting details
                 document.getElementById('wait-type').innerText = type || "--";
                 document.getElementById('wait-pl').innerText = pl || "--";
-
                 document.getElementById('zone-selector').style.display = 'none';
                 document.getElementById('picker-waiting').style.display = 'block';
             } else {
@@ -498,7 +440,8 @@
             }
         }
 
-        // --- DEO VIEW ---
+        // --- DEO VIEW & RESOLUTION (STEP 3) ---
+        
         function initManagerListener() {
             const listContainer = document.getElementById('ticket-list');
             const countBadge = document.getElementById('issue-count');
@@ -516,17 +459,20 @@
                         const ticket = data[key];
                         const timeAgo = Math.floor((Date.now() - ticket.timestamp) / 60000); 
                         
+                        // Pass full ticket object to button
+                        const ticketDataStr = encodeURIComponent(JSON.stringify({...ticket, key: key}));
+
                         const html = `
                         <div class="ticket-item">
                             <div class="ticket-details">
                                 <h4><span class="badge badge-red">${ticket.zone}</span> &nbsp;${ticket.casper_id}</h4>
                                 <div class="ticket-meta">
-                                    <span class="meta-tag">⚠ ${ticket.issue_type}</span>
-                                    <span class="meta-tag">📄 PL: ${ticket.picklist_id}</span>
-                                    <span>⏱ ${timeAgo}m ago</span>
+                                    <span>📄 PL: <b>${ticket.picklist_id}</b></span>
+                                    <span style="margin-left:8px;">💡 Hint: ${ticket.picker_hint_type}</span>
+                                    <span style="margin-left:8px;">⏱ ${timeAgo}m</span>
                                 </div>
                             </div>
-                            <button class="btn-primary" style="width:auto; padding:8px 16px;" onclick="resolveTicket('${key}')">Resolve</button>
+                            <button class="btn-primary" style="width:auto; padding:8px 16px;" onclick="promptDeoResolve('${ticketDataStr}')">Resolve</button>
                         </div>`;
                         listContainer.innerHTML += html;
                     });
@@ -538,6 +484,31 @@
             onChildAdded(ref(db, 'tickets'), (snapshot) => {
                 if (initialLoadComplete) triggerAlert(snapshot.val().zone);
             });
+        }
+
+        // DEO CLICKS RESOLVE
+        window.promptDeoResolve = function(ticketDataStr) {
+            const ticket = JSON.parse(decodeURIComponent(ticketDataStr));
+            pendingResolveTicket = ticket; // Store for final step
+            
+            // Populate Modal
+            document.getElementById('res-pl-id').innerText = ticket.picklist_id;
+            document.getElementById('res-reported').innerText = ticket.picker_hint_type;
+            
+            document.getElementById('resolve-modal').style.display = 'flex';
+        }
+
+        // DEO SELECTS FINAL CATEGORY
+        window.confirmDeoResolve = function(finalCategory) {
+            if(pendingResolveTicket) {
+                archiveAndResolve(pendingResolveTicket, finalCategory);
+                closeResolveModal();
+            }
+        }
+
+        window.closeResolveModal = () => {
+            document.getElementById('resolve-modal').style.display = 'none';
+            pendingResolveTicket = null;
         }
 
         // --- SHARED ACTIONS ---
@@ -554,36 +525,38 @@
         }
 
         window.cancelActiveTicket = function() {
-            if(currentTicketId) archiveAndResolve(currentTicketId, 'False Alarm');
-        }
-
-        window.resolveTicket = function(ticketId) {
-            if(confirm("Confirm issue is resolved and ticket closed?")) {
-                archiveAndResolve(ticketId, 'Resolved');
+            if(currentTicketId) {
+                // Picker cancelling gets logged as 'False Alarm'
+                const fakeTicket = { key: currentTicketId }; // Partial object for deletion
+                // We fetch real data inside function usually, but for cancel we just remove. 
+                // Better implementation below:
+                const ticketRef = ref(db, 'tickets/' + currentTicketId);
+                get(ticketRef).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const t = snapshot.val();
+                        // Archive as False Alarm
+                        archiveAndResolve({...t, key: currentTicketId}, 'False Alarm');
+                    }
+                });
             }
         }
 
-        function archiveAndResolve(ticketId, outcome) {
-            const ticketRef = ref(db, 'tickets/' + ticketId);
-            get(ticketRef).then((snapshot) => {
-                if (snapshot.exists()) {
-                    const t = snapshot.val();
-                    const duration = Date.now() - t.timestamp;
+        function archiveAndResolve(ticket, finalOutcome) {
+            const duration = Date.now() - ticket.timestamp;
 
-                    push(ref(db, 'history'), {
-                        casper_id: t.casper_id,
-                        zone: t.zone,
-                        issue_type: t.issue_type,
-                        picklist_id: t.picklist_id,
-                        start_time: t.timestamp,
-                        end_time: Date.now(),
-                        duration_ms: duration,
-                        outcome: outcome // 'Resolved' or 'False Alarm'
-                    });
-                    remove(ticketRef);
-                    if(t.casper_id) update(ref(db, 'active_pickers/' + t.casper_id), { status: 'PICKING' });
-                }
+            push(ref(db, 'history'), {
+                casper_id: ticket.casper_id,
+                zone: ticket.zone,
+                picklist_id: ticket.picklist_id,
+                picker_hint: ticket.picker_hint_type, // What picker said
+                final_category: finalOutcome,         // What DEO decided (or False Alarm)
+                start_time: ticket.timestamp,
+                end_time: Date.now(),
+                duration_ms: duration
             });
+            
+            remove(ref(db, 'tickets/' + ticket.key));
+            if(ticket.casper_id) update(ref(db, 'active_pickers/' + ticket.casper_id), { status: 'PICKING' });
         }
 
         // --- HISTORY & CSV ---
@@ -598,12 +571,16 @@
                         const sec = Math.round(entry.duration_ms / 1000);
                         const time = new Date(entry.start_time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
                         
+                        // Color code False Alarms
+                        const statusColor = entry.final_category === 'False Alarm' ? '#F59E0B' : '#2c3e50';
+
                         historyTable.innerHTML += `<tr>
                             <td>${time}</td>
                             <td>${entry.casper_id}</td>
                             <td><span class="badge badge-red">${entry.zone}</span></td>
-                            <td>${entry.issue_type}<br><small style="color:#6B7280">${entry.picklist_id}</small></td>
-                            <td>${entry.outcome === 'False Alarm' ? 'Cancelled' : sec + 's'}</td>
+                            <td style="color:${statusColor}; font-weight:600;">${entry.final_category}</td>
+                            <td><small>${entry.picklist_id}</small></td>
+                            <td>${sec}s</td>
                         </tr>`;
                     });
                 }
@@ -612,14 +589,14 @@
 
         window.downloadCSV = function() {
             if(!allHistoryData.length) return showToast("No data to export");
-            let csv = "data:text/csv;charset=utf-8,Date,Time,Picker ID,Zone,Issue Type,Picklist ID,Duration (Seconds),Outcome\n";
+            let csv = "data:text/csv;charset=utf-8,Date,Time,Picker ID,Zone,Reported Hint,Picklist ID,Final Category,Duration (Seconds)\n";
             allHistoryData.forEach(row => {
                 const d = new Date(row.start_time);
-                csv += `${d.toLocaleDateString()},${d.toLocaleTimeString()},${row.casper_id},${row.zone},"${row.issue_type}","${row.picklist_id}",${Math.round(row.duration_ms/1000)},${row.outcome}\n`;
+                csv += `${d.toLocaleDateString()},${d.toLocaleTimeString()},${row.casper_id},${row.zone},"${row.picker_hint}","${row.picklist_id}","${row.final_category}",${Math.round(row.duration_ms/1000)}\n`;
             });
             const link = document.createElement("a");
             link.href = encodeURI(csv);
-            link.download = `ardon_report_v3_${new Date().toISOString().slice(0,10)}.csv`;
+            link.download = `ardon_report_v3.1_${new Date().toISOString().slice(0,10)}.csv`;
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
@@ -658,10 +635,10 @@
             onValue(ref(db, 'tickets'), (snapshot) => {
                 const data = snapshot.val();
                 let exists = false;
-                let ticketData = null;
+                let myTicket = null;
                 if (data) {
                     Object.keys(data).forEach(key => {
-                        if (key === currentTicketId) { exists = true; ticketData = data[key]; }
+                        if (key === currentTicketId) { exists = true; myTicket = data[key]; }
                     });
                 }
                 if (currentTicketId && !exists) setPickerState('PICKING'); // Resolved
