@@ -4,117 +4,223 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ardon Light v3.1</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* --- VARIABLES --- */
         :root {
-            --primary: #2563EB; --success: #10B981; --danger: #EF4444; 
-            --warning: #F59E0B; --dark: #1F2937; --light: #F3F4F6; 
-            --white: #FFFFFF; --shadow: 0 4px 6px -1px rgba(0,0,0,0.1); --radius: 12px;
+            --primary: #2563EB; 
+            --primary-hover: #1d4ed8;
+            --success: #10B981; 
+            --danger: #EF4444; 
+            --warning: #F59E0B; 
+            --dark: #111827; 
+            --gray: #6B7280;
+            --light: #F3F4F6; 
+            --white: #FFFFFF; 
+            --border: #E5E7EB;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
         }
 
         body {
-            font-family: 'Inter', sans-serif; background-color: var(--light); color: var(--dark);
-            margin: 0; padding: 0; overscroll-behavior: none;
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--light); 
+            color: var(--dark);
+            margin: 0; padding: 0; 
+            -webkit-font-smoothing: antialiased;
         }
 
         /* --- LAYOUT --- */
-        .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        /* HEADER */
         header {
-            background-color: var(--white); padding: 1rem 1.5rem; box-shadow: var(--shadow);
-            display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100;
+            background-color: var(--white); padding: 1rem 1.5rem; 
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; z-index: 100;
         }
-        header h2 { margin: 0; font-size: 1.5rem; color: var(--primary); font-weight: 800; }
+        header h2 { 
+            margin: 0; font-size: 1.25rem; color: var(--primary); 
+            font-weight: 700; display: flex; align-items: center; gap: 10px; 
+        }
 
         /* --- BUTTONS --- */
         button {
-            border: none; border-radius: 8px; padding: 12px 20px; font-size: 1rem; font-weight: 600;
-            cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+            border: none; border-radius: 8px; padding: 10px 16px; font-size: 0.95rem; font-weight: 500;
+            cursor: pointer; transition: all 0.2s; 
         }
-        button:active { transform: scale(0.98); }
-        .btn-primary { background-color: var(--primary); color: white; width: 100%; }
-        .btn-danger { background-color: var(--danger); color: white; width: 100%; }
-        .btn-warning { background-color: var(--warning); color: white; width: 100%; }
-        .btn-outline { background-color: white; border: 1px solid #D1D5DB; color: var(--dark); }
-        .btn-call { background-color: var(--warning); color: white; padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; }
+        button:active { transform: translateY(1px); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
 
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-warning { background-color: var(--warning); color: white; }
+        
+        .btn-outline { 
+            background-color: white; border: 1px solid var(--border); color: var(--dark); 
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-outline:hover { background-color: #F9FAFB; border-color: #D1D5DB; }
+
+        /* Compact Call Button */
+        .btn-call { 
+            background-color: #FFF7ED; color: var(--warning); border: 1px solid #FFEDD5;
+            padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; font-weight: 600;
+        }
+        .btn-call:hover { background-color: var(--warning); color: white; border-color: var(--warning); }
+
+        /* --- INPUTS --- */
         input {
-            width: 100%; padding: 12px; border: 1px solid #D1D5DB; border-radius: 8px;
+            width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;
             font-size: 1rem; margin-bottom: 1rem; box-sizing: border-box; outline: none;
+            transition: border 0.2s;
         }
-        input:focus { border-color: var(--primary); ring: 2px solid var(--primary); }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
 
-        /* --- VIEWS --- */
-        .view-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        /* --- VIEWS & SECTIONS --- */
+        .view-section { display: none; animation: fadeIn 0.3s ease; }
         .active-view { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- PICKER --- */
+        /* --- LOGIN --- */
+        .login-card {
+            background: white; padding: 2.5rem; border-radius: var(--radius); 
+            box-shadow: var(--shadow-md); max-width: 380px; margin: 4rem auto; text-align: center;
+        }
+
+        /* --- PICKER UI --- */
         .status-hero {
             padding: 3rem 1rem; border-radius: var(--radius); color: white; text-align: center;
-            margin-bottom: 2rem; box-shadow: var(--shadow); transition: background 0.5s ease;
+            margin-bottom: 1.5rem; box-shadow: var(--shadow-md); transition: background 0.3s ease;
         }
         .bg-picking { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
         .bg-hold { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); animation: pulse-red 2s infinite; }
         @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
         
-        .zone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1rem; }
-        .zone-btn { background-color: white; border: 1px solid #E5E7EB; color: var(--dark); padding: 1.5rem 0; font-size: 1.25rem; border-radius: 8px; }
+        .zone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
+        .zone-btn { 
+            background-color: white; border: 1px solid var(--border); color: var(--dark); 
+            padding: 1.5rem 0; font-size: 1.25rem; border-radius: 8px; font-weight: 600;
+            box-shadow: var(--shadow-sm);
+        }
+        .zone-btn:active { background-color: #EFF6FF; border-color: var(--primary); color: var(--primary); }
 
-        /* --- FORM STYLES --- */
-        .form-section { margin-bottom: 15px; text-align: left; }
-        .form-label { font-size: 0.9rem; font-weight: 600; color: #374151; margin-bottom: 8px; display: block; }
+        /* --- MODAL FORM --- */
         .type-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-        .type-btn { padding: 10px; font-size: 0.85rem; background: #F3F4F6; color: var(--dark); border: 2px solid transparent; }
-        .type-btn.selected { border-color: var(--primary); background: #EFF6FF; color: var(--primary); }
+        .type-btn { 
+            padding: 12px; font-size: 0.85rem; background: #F9FAFB; color: var(--gray); 
+            border: 1px solid var(--border); border-radius: 8px;
+        }
+        .type-btn.selected { 
+            border-color: var(--primary); background: #EFF6FF; color: var(--primary); font-weight: 700;
+        }
 
-        /* --- DEO DASHBOARD --- */
-        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        /* --- DEO DASHBOARD GRID --- */
+        .dashboard-grid { 
+            display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; 
+        }
         @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
 
-        .card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; border: 1px solid #F3F4F6; }
-        .card-header { padding: 1rem 1.5rem; background-color: #F9FAFB; border-bottom: 1px solid #E5E7EB; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-        .card-body { padding: 0; max-height: 500px; overflow-y: auto; }
+        .card { 
+            background: white; border-radius: var(--radius); 
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border); 
+            display: flex; flex-direction: column;
+        }
+        .card-header { 
+            padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); 
+            font-weight: 600; display: flex; justify-content: space-between; align-items: center; 
+            background-color: #ffffff; border-radius: var(--radius) var(--radius) 0 0;
+        }
+        .card-body { padding: 0; max-height: 400px; overflow-y: auto; flex-grow: 1; }
         
-        .ticket-item { padding: 1rem 1.5rem; border-bottom: 1px solid #F3F4F6; display: flex; justify-content: space-between; align-items: center; }
-        .ticket-details h4 { margin: 0; font-size: 1.1rem; color: var(--danger); display: flex; align-items: center; gap: 8px;}
-        .ticket-meta { margin-top: 5px; font-size: 0.9rem; color: #4B5563; }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; background: #FEE2E2; color: #991B1B; }
+        .empty-state { padding: 2.5rem; text-align: center; color: #9CA3AF; font-size: 0.9rem; font-style: italic; }
+
+        /* --- TICKET ITEMS --- */
+        .ticket-item { 
+            padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); 
+            display: flex; justify-content: space-between; align-items: center; 
+            transition: background 0.1s;
+        }
+        .ticket-item:hover { background-color: #FEF2F2; }
+        .ticket-details h4 { margin: 0; font-size: 1rem; color: var(--dark); display: flex; align-items: center; gap: 8px;}
         
-        /* --- MODALS --- */
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
-        .modal { background: white; padding: 2rem; border-radius: var(--radius); width: 90%; max-width: 450px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .badge { 
+            padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; 
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge-red { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+        .badge-zone { background: #E0E7FF; color: #3730A3; border: 1px solid #C7D2FE; }
+
+        .ticket-meta { margin-top: 6px; font-size: 0.85rem; color: var(--gray); display: flex; gap: 12px; align-items: center; }
+        .meta-item { display: flex; align-items: center; gap: 4px; }
+
+        /* --- PICKER LIST --- */
+        .picker-item { 
+            padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border); 
+            display: flex; justify-content: space-between; align-items: center; 
+        }
+        .picker-info { display: flex; align-items: center; gap: 12px; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-green { background-color: var(--success); box-shadow: 0 0 0 3px #D1FAE5; }
+        .dot-red { background-color: var(--danger); box-shadow: 0 0 0 3px #FEE2E2; }
+        
+        .picker-name { font-weight: 600; font-size: 0.9rem; color: var(--dark); }
+        .picker-status { font-size: 0.75rem; color: var(--gray); margin-top: 2px;}
+
+        /* --- HISTORY TABLE --- */
+        .history-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .history-table th { 
+            background-color: #F9FAFB; padding: 12px 16px; text-align: left; 
+            color: var(--gray); font-weight: 600; border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .history-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--dark); vertical-align: middle; }
+        .history-table tr:last-child td { border-bottom: none; }
+        
+        .cat-tag { 
+            display: inline-block; padding: 2px 8px; border-radius: 12px; 
+            font-size: 0.75rem; font-weight: 600; background: #F3F4F6; color: var(--dark);
+        }
+
+        /* --- OVERLAYS --- */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
+        .modal { background: white; padding: 1.5rem; border-radius: var(--radius); width: 90%; max-width: 420px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
         
         #callout-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--danger); z-index: 3000; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; animation: flash 1s infinite; }
         @keyframes flash { 0%, 100% { background-color: var(--danger); } 50% { background-color: #B91C1C; } }
 
-        #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background-color: var(--dark); color: white; padding: 12px 24px; border-radius: 50px; z-index: 9999; transition: top 0.4s; }
-        #toast.show { top: 24px; }
+        #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background-color: #1F2937; color: white; padding: 10px 20px; border-radius: 50px; z-index: 9999; transition: top 0.4s; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        #toast.show { top: 20px; }
         
-        /* History Table */
-        .history-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        .history-table th { background-color: #F9FAFB; padding: 12px; text-align: left; }
-        .history-table td { padding: 12px; border-bottom: 1px solid #F3F4F6; }
+        /* Utils */
+        .count-badge { background: var(--danger); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; margin-left: 8px; }
+        .count-badge.green { background: var(--success); }
     </style>
 </head>
 <body>
 
-    <div id="toast"><span>🔔</span> <span id="toast-msg">Notification</span></div>
+    <div id="toast"><span>🔔</span> <span id="toast-msg">Message</span></div>
     <audio id="alert-sound" preload="auto" src="data:audio/mp3;base64,//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" type="audio/mpeg"></audio>
 
     <div id="callout-overlay">
         <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
-        <h1 style="font-size: 3rem; margin: 0; line-height: 1;">REPORT TO<br>DESK</h1>
-        <button onclick="acknowledgeCallout()" style="margin-top: 2rem; background: white; color: var(--danger); padding: 1rem 3rem; font-size: 1.2rem; border-radius: 50px;">I AM COMING</button>
+        <h1 style="font-size: 2.5rem; margin: 0; line-height: 1.1;">REPORT TO<br>DESK</h1>
+        <button onclick="acknowledgeCallout()" style="margin-top: 2rem; background: white; color: var(--danger); padding: 1rem 3rem; font-size: 1.1rem; border-radius: 50px; font-weight: 700;">I AM COMING</button>
     </div>
 
     <div id="picker-input-modal" class="overlay">
-        <div class="modal" style="text-align: left;">
-            <h3 style="margin-top:0;">Raise Issue</h3>
-            <p id="modal-zone-display" style="color:var(--primary); font-weight:bold; margin-bottom: 20px;">Zone: --</p>
+        <div class="modal">
+            <h3 style="margin-top:0; font-size: 1.2rem;">Raise Issue</h3>
+            <div style="background:#EFF6FF; padding:10px; border-radius:8px; margin-bottom:15px; color:var(--primary); font-weight:600; font-size:0.9rem;">
+                📍 Zone: <span id="modal-zone-display">--</span>
+            </div>
 
-            <div class="form-section">
-                <label class="form-label">Probable Cause (Notify DEO)</label>
+            <div style="margin-bottom: 15px; text-align: left;">
+                <label style="display:block; font-size:0.85rem; font-weight:600; color:var(--gray); margin-bottom:6px;">Select Issue Category</label>
                 <div class="type-grid">
                     <button class="type-btn" onclick="selectPickerType(this, 'WID Issue')">WID</button>
                     <button class="type-btn" onclick="selectPickerType(this, 'Printer Issue')">Printer</button>
@@ -122,14 +228,14 @@
                 </div>
             </div>
 
-            <div class="form-section">
-                <label class="form-label">Picklist ID (Required)</label>
+            <div style="margin-bottom: 20px; text-align: left;">
+                <label style="display:block; font-size:0.85rem; font-weight:600; color:var(--gray); margin-bottom:6px;">Picklist ID</label>
                 <input type="text" id="input-picklist-id" placeholder="Scan or Type PL...">
             </div>
 
-            <div style="display:flex; gap:10px; margin-top:20px;">
-                <button class="btn-outline" onclick="closePickerModal()">Cancel</button>
-                <button class="btn-primary" onclick="submitTicketFinal()">Notify DEO</button>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-outline" style="flex:1;" onclick="closePickerModal()">Cancel</button>
+                <button class="btn-primary" style="flex:1;" onclick="submitTicketFinal()">Notify DEO</button>
             </div>
         </div>
     </div>
@@ -137,10 +243,11 @@
     <div id="resolve-modal" class="overlay">
         <div class="modal">
             <h3 style="margin-top:0;">Final Resolution</h3>
-            <p style="color: #6B7280; font-size:0.9rem;">Select the <b>Final Category</b> to close ticket.</p>
-            <div style="text-align:left; background:#F3F4F6; padding:10px; border-radius:8px; margin-bottom:15px; font-size:0.85rem;">
-                <div><b>Picklist:</b> <span id="res-pl-id">--</span></div>
-                <div><b>Reported as:</b> <span id="res-reported">--</span></div>
+            <p style="color: var(--gray); font-size:0.9rem; margin-bottom: 15px;">Select the final category to close this ticket.</p>
+            
+            <div style="text-align:left; background:#F9FAFB; padding:12px; border-radius:8px; margin-bottom:15px; font-size:0.85rem; border:1px solid var(--border);">
+                <div style="margin-bottom:4px;"><b>Picklist:</b> <span id="res-pl-id">--</span></div>
+                <div><b>Reported as:</b> <span id="res-reported" style="color:var(--danger)">--</span></div>
             </div>
             
             <div class="type-grid" style="grid-template-columns: 1fr 1fr;">
@@ -156,13 +263,13 @@
     </div>
 
     <header>
-        <div style="display:flex; align-items:center; gap:10px;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
             <h2>Ardon Light v3.1</h2>
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
-            <div id="user-badge" style="display:none; font-weight:600; font-size: 0.9rem;"></div>
-            <button id="logout-btn" class="btn-outline" onclick="handleLogout()" style="display:none; padding: 6px 12px; font-size:0.85rem;">Logout</button>
+            <div id="user-badge" style="display:none; font-weight:600; font-size: 0.85rem; background: var(--light); padding: 6px 12px; border-radius: 20px;"></div>
+            <button id="logout-btn" class="btn-outline" onclick="handleLogout()" style="display:none; padding: 6px 12px; font-size:0.8rem;">Logout</button>
         </div>
     </header>
 
@@ -170,53 +277,65 @@
 
         <div id="view-login" class="view-section active-view">
             <div class="login-card">
-                <h2 style="margin-bottom: 1.5rem;">Welcome</h2>
-                <input type="text" id="input-casper-id" placeholder="Casper ID / Employee ID">
+                <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Welcome</h2>
+                <div style="text-align: left; margin-bottom: 5px; font-size: 0.85rem; font-weight: 600; color: var(--gray);">Casper ID / Employee ID</div>
+                <input type="text" id="input-casper-id" placeholder="e.g. 1024 or DEO">
                 <button id="btn-login" class="btn-primary" onclick="handleLogin()" disabled>Connecting...</button>
-                <p id="loading-msg" style="margin-top: 1rem; color: #6B7280; font-size: 0.85rem;">Connecting to database...</p>
+                <p id="loading-msg" style="margin-top: 1rem; color: var(--gray); font-size: 0.8rem;">Securely connecting to database...</p>
             </div>
         </div>
 
         <div id="view-picker" class="view-section">
             <div id="picker-status-card" class="status-hero bg-picking">
-                <h1 id="status-text">PICKING</h1>
-                <p id="display-zone-info" style="display:none;">Help coming to <span id="display-zone" style="font-weight:bold;">--</span></p>
+                <div style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; margin-bottom: 5px;">Current Status</div>
+                <h1 id="status-text" style="font-size: 2.5rem;">PICKING</h1>
+                <p id="display-zone-info" style="display:none; margin-top:5px; font-size: 1.1rem;">Help coming to <span id="display-zone" style="font-weight:700;">--</span></p>
             </div>
 
             <div id="picker-controls">
-                <button class="btn-danger" style="height: 120px; font-size: 1.5rem;" onclick="toggleZoneSelector()">
-                    ✋ RAISE ISSUE
+                <button class="btn-danger" style="height: 100px; width: 100%; font-size: 1.25rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;" onclick="toggleZoneSelector()">
+                    <span style="font-size: 1.5rem;">✋</span>
+                    <span>RAISE ISSUE</span>
                 </button>
             </div>
 
             <div id="picker-waiting" style="display:none;">
-                <div style="background: white; padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; margin-bottom: 1rem;">
-                    <h3 style="margin-top: 0;">DEO Notified</h3>
-                    <p><strong>Reported:</strong> <span id="wait-type">--</span></p>
-                    <p><strong>Picklist:</strong> <span id="wait-pl">--</span></p>
-                    <p style="color: #6B7280; margin-top:10px;">Please wait at your location.</p>
+                <div style="background: white; padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border); text-align: left; margin-bottom: 1rem;">
+                    <h3 style="margin: 0 0 10px 0; color: var(--dark);">Details Sent</h3>
+                    <div style="display:grid; grid-template-columns: auto 1fr; gap: 8px 15px; font-size: 0.95rem;">
+                        <span style="color:var(--gray);">Reported:</span>
+                        <span id="wait-type" style="font-weight:600;">--</span>
+                        <span style="color:var(--gray);">Picklist:</span>
+                        <span id="wait-pl" style="font-weight:600; font-family:monospace;">--</span>
+                    </div>
+                    <p style="color: var(--gray); font-size: 0.85rem; margin-top:15px; font-style: italic;">Stay at your location. DEO is en route.</p>
                 </div>
                 <button class="btn-warning" onclick="cancelActiveTicket()">CANCEL / FALSE ALARM</button>
             </div>
 
             <div id="zone-selector" style="display:none;">
-                <h3 style="margin-bottom: 1rem;">Select Location</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+                    <h3 style="margin:0; font-size: 1.1rem;">Select Location</h3>
+                    <button class="btn-outline" style="padding: 6px 12px; font-size:0.8rem;" onclick="cancelZoneSelection()">Cancel</button>
+                </div>
                 <div class="zone-grid" id="zone-buttons"></div>
-                <button class="btn-outline" style="width: 100%; margin-top: 10px;" onclick="cancelZoneSelection()">Cancel</button>
             </div>
         </div>
 
         <div id="view-deo" class="view-section">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
                 <h2 style="margin:0;">Dashboard</h2>
-                <button onclick="testNotification()" class="btn-outline" style="padding: 8px 16px; font-size: 0.9rem;">🔊 Test Alert</button>
+                <button onclick="testNotification()" class="btn-outline" style="padding: 8px 12px; font-size: 0.85rem;">🔊 Test Alert</button>
             </div>
 
             <div class="dashboard-grid">
                 <div class="card">
                     <div class="card-header">
-                        <span>🔴 Active Issues</span>
-                        <span id="issue-count" style="background:var(--danger); color:white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">0</span>
+                        <div style="display:flex; align-items:center;">
+                            <span style="display:inline-block; width:8px; height:8px; background:var(--danger); border-radius:50%; margin-right:8px;"></span>
+                            Active Issues
+                            <span id="issue-count" class="count-badge">0</span>
+                        </div>
                     </div>
                     <div class="card-body" id="ticket-list">
                         <div class="empty-state">No active issues.</div>
@@ -225,8 +344,11 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <span>🟢 Active Pickers</span>
-                        <span id="picker-count" style="background:var(--success); color:white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">0</span>
+                        <div style="display:flex; align-items:center;">
+                            <span style="display:inline-block; width:8px; height:8px; background:var(--success); border-radius:50%; margin-right:8px;"></span>
+                            Active Pickers
+                            <span id="picker-count" class="count-badge green">0</span>
+                        </div>
                     </div>
                     <div class="card-body" id="active-pickers-list">
                         <div class="empty-state">No pickers online.</div>
@@ -236,12 +358,21 @@
 
             <div class="card">
                 <div class="card-header">
-                    <span>📋 Logs (Final Bucketing)</span>
-                    <button onclick="downloadCSV()" style="font-size: 0.8rem; padding: 6px 12px; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 6px; color: var(--dark);">⬇ CSV</button>
+                    <span style="display:flex; align-items:center; gap:8px;">📄 Logs (Final Bucketing)</span>
+                    <button onclick="downloadCSV()" class="btn-outline" style="padding: 6px 10px; font-size: 0.8rem;">⬇ CSV</button>
                 </div>
                 <div class="card-body">
                     <table class="history-table">
-                        <thead><tr><th>Time</th><th>ID</th><th>Zone</th><th>Final Category</th><th>Picklist</th><th>Time Lost</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>ID</th>
+                                <th>Zone</th>
+                                <th>Final Category</th>
+                                <th>Picklist</th>
+                                <th style="text-align:right;">Time Lost</th>
+                            </tr>
+                        </thead>
                         <tbody id="history-list"></tbody>
                     </table>
                 </div>
@@ -255,7 +386,6 @@
         import { getDatabase, ref, push, onValue, remove, set, onChildAdded, get, update, onDisconnect } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
         // --- REPLACE WITH YOUR FIREBASE CONFIG ---
-        // --- CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyBIg1Qdo-GPYFV6ML2JNOLSyx-Jrllmx5s",
             authDomain: "ardon-4b555.firebaseapp.com",
@@ -267,6 +397,7 @@
         };
 
         const PICKER_LIST_URL = "https://raw.githubusercontent.com/Pranav-In11/ArdonLight/main/pickers.json"; 
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
@@ -278,11 +409,9 @@
         let allHistoryData = [];
         let alertInterval = null;
 
-        // Temporary Data for Picker Form
+        // Temporary Data
         let tempZone = "";
         let tempPickerHint = "";
-        
-        // Temporary Data for DEO Resolve
         let pendingResolveTicket = null;
 
         // --- INIT ---
@@ -369,8 +498,7 @@
             });
         }
 
-        // --- PICKER WORKFLOW (STEP 1 & 2) ---
-        
+        // --- PICKER WORKFLOW ---
         window.toggleZoneSelector = () => {
             document.getElementById('picker-controls').style.display = 'none';
             document.getElementById('zone-selector').style.display = 'block';
@@ -385,7 +513,7 @@
             tempPickerHint = "";
             document.getElementById('input-picklist-id').value = "";
             document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
-            document.getElementById('modal-zone-display').innerText = `Zone: ${zone}`;
+            document.getElementById('modal-zone-display').innerText = zone;
             document.getElementById('picker-input-modal').style.display = 'flex';
         }
 
@@ -406,7 +534,7 @@
             set(newTicketRef, {
                 casper_id: currentUser,
                 zone: tempZone,
-                picker_hint_type: tempPickerHint, // Picker's "Intimation"
+                picker_hint_type: tempPickerHint,
                 picklist_id: picklistId,
                 timestamp: Date.now()
             }).then(() => {
@@ -440,8 +568,7 @@
             }
         }
 
-        // --- DEO VIEW & RESOLUTION (STEP 3) ---
-        
+        // --- DEO VIEW ---
         function initManagerListener() {
             const listContainer = document.getElementById('ticket-list');
             const countBadge = document.getElementById('issue-count');
@@ -459,20 +586,19 @@
                         const ticket = data[key];
                         const timeAgo = Math.floor((Date.now() - ticket.timestamp) / 60000); 
                         
-                        // Pass full ticket object to button
                         const ticketDataStr = encodeURIComponent(JSON.stringify({...ticket, key: key}));
 
                         const html = `
                         <div class="ticket-item">
                             <div class="ticket-details">
-                                <h4><span class="badge badge-red">${ticket.zone}</span> &nbsp;${ticket.casper_id}</h4>
+                                <h4><span class="badge badge-zone">${ticket.zone}</span> &nbsp;${ticket.casper_id}</h4>
                                 <div class="ticket-meta">
-                                    <span>📄 PL: <b>${ticket.picklist_id}</b></span>
-                                    <span style="margin-left:8px;">💡 Hint: ${ticket.picker_hint_type}</span>
-                                    <span style="margin-left:8px;">⏱ ${timeAgo}m</span>
+                                    <div class="meta-item"><span class="badge badge-red">!</span> ${ticket.picker_hint_type}</div>
+                                    <div class="meta-item">📄 ${ticket.picklist_id}</div>
+                                    <div class="meta-item">⏱ ${timeAgo}m</div>
                                 </div>
                             </div>
-                            <button class="btn-primary" style="width:auto; padding:8px 16px;" onclick="promptDeoResolve('${ticketDataStr}')">Resolve</button>
+                            <button class="btn-primary" style="padding: 6px 14px;" onclick="promptDeoResolve('${ticketDataStr}')">Resolve</button>
                         </div>`;
                         listContainer.innerHTML += html;
                     });
@@ -486,19 +612,15 @@
             });
         }
 
-        // DEO CLICKS RESOLVE
+        // DEO ACTIONS
         window.promptDeoResolve = function(ticketDataStr) {
             const ticket = JSON.parse(decodeURIComponent(ticketDataStr));
-            pendingResolveTicket = ticket; // Store for final step
-            
-            // Populate Modal
+            pendingResolveTicket = ticket; 
             document.getElementById('res-pl-id').innerText = ticket.picklist_id;
             document.getElementById('res-reported').innerText = ticket.picker_hint_type;
-            
             document.getElementById('resolve-modal').style.display = 'flex';
         }
 
-        // DEO SELECTS FINAL CATEGORY
         window.confirmDeoResolve = function(finalCategory) {
             if(pendingResolveTicket) {
                 archiveAndResolve(pendingResolveTicket, finalCategory);
@@ -526,15 +648,10 @@
 
         window.cancelActiveTicket = function() {
             if(currentTicketId) {
-                // Picker cancelling gets logged as 'False Alarm'
-                const fakeTicket = { key: currentTicketId }; // Partial object for deletion
-                // We fetch real data inside function usually, but for cancel we just remove. 
-                // Better implementation below:
                 const ticketRef = ref(db, 'tickets/' + currentTicketId);
                 get(ticketRef).then((snapshot) => {
                     if (snapshot.exists()) {
                         const t = snapshot.val();
-                        // Archive as False Alarm
                         archiveAndResolve({...t, key: currentTicketId}, 'False Alarm');
                     }
                 });
@@ -543,13 +660,15 @@
 
         function archiveAndResolve(ticket, finalOutcome) {
             const duration = Date.now() - ticket.timestamp;
+            // Prevent undefined string in database
+            const safeCategory = finalOutcome || "Resolved";
 
             push(ref(db, 'history'), {
                 casper_id: ticket.casper_id,
                 zone: ticket.zone,
                 picklist_id: ticket.picklist_id,
-                picker_hint: ticket.picker_hint_type, // What picker said
-                final_category: finalOutcome,         // What DEO decided (or False Alarm)
+                picker_hint: ticket.picker_hint_type, 
+                final_category: safeCategory,
                 start_time: ticket.timestamp,
                 end_time: Date.now(),
                 duration_ms: duration
@@ -559,7 +678,7 @@
             if(ticket.casper_id) update(ref(db, 'active_pickers/' + ticket.casper_id), { status: 'PICKING' });
         }
 
-        // --- HISTORY & CSV ---
+        // --- HISTORY TABLE ---
         function initHistoryListener() {
             const historyTable = document.getElementById('history-list');
             onValue(ref(db, 'history'), (snapshot) => {
@@ -571,16 +690,17 @@
                         const sec = Math.round(entry.duration_ms / 1000);
                         const time = new Date(entry.start_time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
                         
-                        // Color code False Alarms
-                        const statusColor = entry.final_category === 'False Alarm' ? '#F59E0B' : '#2c3e50';
+                        // Handle potential undefined values
+                        const category = entry.final_category || "Resolved";
+                        const picklist = entry.picklist_id || "-";
 
                         historyTable.innerHTML += `<tr>
                             <td>${time}</td>
-                            <td>${entry.casper_id}</td>
-                            <td><span class="badge badge-red">${entry.zone}</span></td>
-                            <td style="color:${statusColor}; font-weight:600;">${entry.final_category}</td>
-                            <td><small>${entry.picklist_id}</small></td>
-                            <td>${sec}s</td>
+                            <td style="font-weight:600;">${entry.casper_id}</td>
+                            <td><span class="badge badge-zone">${entry.zone}</span></td>
+                            <td><span class="cat-tag">${category}</span></td>
+                            <td style="font-family:monospace;">${picklist}</td>
+                            <td style="text-align:right; font-weight:700;">${sec}s</td>
                         </tr>`;
                     });
                 }
@@ -596,7 +716,7 @@
             });
             const link = document.createElement("a");
             link.href = encodeURI(csv);
-            link.download = `ardon_report_v3.1_${new Date().toISOString().slice(0,10)}.csv`;
+            link.download = `ardon_report_${new Date().toISOString().slice(0,10)}.csv`;
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
@@ -620,7 +740,7 @@
                         <div class="picker-item">
                             <div class="picker-info">
                                 <div class="status-dot ${dotClass}"></div>
-                                <div><div class="picker-name">${pickerId}</div><div class="picker-status-text">${picker.status}</div></div>
+                                <div><div class="picker-name">${pickerId}</div><div class="picker-status">${picker.status}</div></div>
                             </div>
                             <button class="btn-call" onclick="callOutPicker('${pickerId}')">📢 CALL</button>
                         </div>`;
@@ -630,15 +750,13 @@
             });
         }
 
-        // --- HELPERS ---
         function initPickerListener() {
             onValue(ref(db, 'tickets'), (snapshot) => {
                 const data = snapshot.val();
                 let exists = false;
-                let myTicket = null;
                 if (data) {
                     Object.keys(data).forEach(key => {
-                        if (key === currentTicketId) { exists = true; myTicket = data[key]; }
+                        if (key === currentTicketId) exists = true;
                     });
                 }
                 if (currentTicketId && !exists) setPickerState('PICKING'); // Resolved
@@ -648,7 +766,7 @@
         window.callOutPicker = (id) => {
             if(confirm(`Alert ${id}?`)) {
                 update(ref(db, 'active_pickers/' + id), { call_out: true });
-                showToast(`Alerting ${id}...`);
+                showToast(`Alert sent to ${id}`);
             }
         };
         window.acknowledgeCallout = () => {
