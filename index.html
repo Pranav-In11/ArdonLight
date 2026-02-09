@@ -3,357 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ardon Light - Command Center</title>
+    <title>Ardon Light v3.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- CSS STYLES --- */
+        /* --- MODERN VARIABLES --- */
         :root {
-            --picker-green: #2ecc71;
-            --picker-red: #e74c3c;
-            --picker-orange: #e67e22;
-            --picker-blue: #3498db;
-            --dark-bg: #2c3e50;
-            --text-light: #ecf0f1;
-            --highlight: #f1c40f;
+            --primary: #2563EB;      /* Modern Blue */
+            --success: #10B981;      /* Emerald Green */
+            --danger: #EF4444;       /* Bright Red */
+            --warning: #F59E0B;      /* Amber */
+            --dark: #1F2937;         /* Dark Grey */
+            --light: #F3F4F6;        /* Light Grey Background */
+            --white: #FFFFFF;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
-            text-align: center;
-            overscroll-behavior: none; 
+            -webkit-font-smoothing: antialiased;
+            overscroll-behavior: none;
         }
 
-        .container {
-            padding: 20px;
-            max-width: 1000px; /* Widened for dashboard */
-            margin: 0 auto;
+        /* --- HEADER --- */
+        header {
+            background-color: var(--white);
+            padding: 1rem 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        input {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-
-        button {
-            width: 100%;
-            padding: 20px;
+        header h2 {
+            margin: 0;
             font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* --- BUTTONS --- */
+        button {
             border: none;
             border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            font-weight: bold;
-            color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            touch-action: manipulation;
-            margin-bottom: 15px;
-            transition: transform 0.1s;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
-
         button:active { transform: scale(0.98); }
-        button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .btn-primary { background-color: #3498db; }
-        .btn-danger { background-color: var(--picker-red); }
-        .btn-warning { background-color: var(--picker-orange); }
-        .btn-success { background-color: var(--picker-green); }
-        .btn-grey { background-color: #95a5a6; }
-        
-        .btn-small {
-            font-size: 0.9rem; 
-            padding: 5px 10px; 
-            width: auto; 
-            margin: 0;
-            border-radius: 4px;
-        }
+        .btn-primary { background-color: var(--primary); color: white; width: 100%; }
+        .btn-danger { background-color: var(--danger); color: white; width: 100%; }
+        .btn-warning { background-color: var(--warning); color: white; width: 100%; }
+        .btn-outline { background-color: white; border: 1px solid #D1D5DB; color: var(--dark); }
+        .btn-call { background-color: var(--warning); color: white; padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; }
 
-        .view-section { display: none; }
-        .active-view { display: block; }
-
-        /* PICKER STYLES */
-        .status-card {
-            padding: 40px;
-            border-radius: 10px;
-            color: white;
-            margin-bottom: 30px;
-        }
-        .status-picking { background-color: var(--picker-green); }
-        .status-hold { background-color: var(--picker-red); animation: pulse 2s infinite; }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.8; }
-            100% { opacity: 1; }
-        }
-
-        .zone-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-        .zone-btn {
-            background-color: var(--dark-bg);
-            padding: 15px;
-            font-size: 1.2rem;
-            color: white;
-        }
-
-        /* DEO DASHBOARD GRID LAYOUT */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            text-align: left;
-        }
-        @media (max-width: 768px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
-        }
-
-        .dashboard-panel {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        /* ACTIVE PICKERS LIST */
-        .picker-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        .picker-status-dot {
-            height: 10px; width: 10px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 5px;
-        }
-        .dot-green { background-color: var(--picker-green); }
-        .dot-red { background-color: var(--picker-red); }
-
-        /* DEO TICKET CARDS */
-        .ticket-card {
-            background: #fff3f3;
-            border-left: 5px solid var(--picker-red);
-            padding: 10px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .ticket-info h3 { margin: 0; font-size: 1.2rem; }
-        .ticket-info p { margin: 0; color: #7f8c8d; font-size: 0.9rem;}
-
-        /* HISTORY TABLE */
-        .history-section {
-            margin-top: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        table {
+        /* --- INPUTS --- */
+        input {
             width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-        }
-        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background-color: var(--dark-bg); color: white; }
-
-        /* MODAL (CATEGORY SELECTOR) */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-box {
-            background: white;
-            padding: 20px;
+            padding: 12px;
+            border: 1px solid #D1D5DB;
             border-radius: 8px;
-            width: 90%;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+            outline: none;
+        }
+        input:focus { border-color: var(--primary); ring: 2px solid var(--primary); }
+
+        /* --- VIEWS --- */
+        .view-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .active-view { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- LOGIN CARD --- */
+        .login-card {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
             max-width: 400px;
+            margin: 4rem auto;
             text-align: center;
         }
-        .cat-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .cat-btn {
-            padding: 15px;
-            font-size: 1rem;
-            background-color: var(--dark-bg);
-            color: white;
-            margin: 0;
-        }
 
-        /* --- CALL OUT ALERT OVERLAY (For Pickers) --- */
-        #callout-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: var(--picker-red);
-            z-index: 3000;
+        /* --- PICKER UI --- */
+        .status-hero {
+            padding: 3rem 1rem;
+            border-radius: var(--radius);
             color: white;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            animation: flashRed 1s infinite;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            transition: background 0.5s ease;
         }
-        @keyframes flashRed {
-            0% { background-color: var(--picker-red); }
-            50% { background-color: #c0392b; }
-            100% { background-color: var(--picker-red); }
-        }
+        .bg-picking { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+        .bg-hold { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); animation: pulse-red 2s infinite; }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
 
-        /* NOTIFICATION TOAST */
-        #notification-toast {
-            position: fixed;
-            top: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #333;
-            color: #fff;
-            padding: 20px 40px;
-            border-radius: 50px;
-            z-index: 9999;
-            font-size: 1.2rem;
-            font-weight: bold;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            transition: top 0.5s ease-in-out;
-            border: 2px solid var(--highlight);
-            width: 80%;
-            max-width: 400px;
-        }
-        #notification-toast.show { top: 20px; }
+        .status-hero h1 { font-size: 3rem; margin: 0; font-weight: 800; }
+        
+        .zone-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1rem; }
+        .zone-btn { background-color: white; border: 1px solid #E5E7EB; color: var(--dark); padding: 1.5rem 0; font-size: 1.25rem; border-radius: 8px; }
+        
+        /* PICKER FORM MODAL */
+        .form-section { margin-bottom: 15px; text-align: left; }
+        .form-label { font-size: 0.9rem; font-weight: 600; color: #374151; margin-bottom: 8px; display: block; }
+        .type-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .type-btn { padding: 10px; font-size: 0.85rem; background: #F3F4F6; color: var(--dark); border: 2px solid transparent; }
+        .type-btn.selected { border-color: var(--primary); background: #EFF6FF; color: var(--primary); }
 
-        header {
-            background-color: var(--dark-bg);
-            color: white;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        #loading-msg { color: #7f8c8d; font-size: 0.9rem; margin-top: 10px;}
+        /* --- DASHBOARD --- */
+        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+        .card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; border: 1px solid #F3F4F6; }
+        .card-header { padding: 1rem 1.5rem; background-color: #F9FAFB; border-bottom: 1px solid #E5E7EB; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+        .card-body { padding: 0; max-height: 500px; overflow-y: auto; }
+        .empty-state { padding: 2rem; text-align: center; color: #9CA3AF; }
+
+        .ticket-item { padding: 1rem 1.5rem; border-bottom: 1px solid #F3F4F6; display: flex; justify-content: space-between; align-items: center; }
+        .ticket-details h4 { margin: 0; font-size: 1.1rem; color: var(--danger); display: flex; align-items: center; gap: 8px;}
+        .ticket-meta { display: flex; gap: 10px; font-size: 0.85rem; color: #4B5563; margin-top: 4px; }
+        .meta-tag { background: #F3F4F6; padding: 2px 6px; border-radius: 4px; border: 1px solid #E5E7EB; }
+
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        .badge-red { background: #FEE2E2; color: #991B1B; }
+
+        /* --- HISTORY TABLE --- */
+        .history-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .history-table th { background-color: #F9FAFB; padding: 12px; text-align: left; }
+        .history-table td { padding: 12px; border-bottom: 1px solid #F3F4F6; }
+
+        /* --- OVERLAYS --- */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
+        .modal { background: white; padding: 2rem; border-radius: var(--radius); width: 90%; max-width: 450px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        
+        #callout-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--danger); z-index: 3000; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; animation: flash 1s infinite; }
+        @keyframes flash { 0%, 100% { background-color: var(--danger); } 50% { background-color: #B91C1C; } }
+
+        #toast { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background-color: var(--dark); color: white; padding: 12px 24px; border-radius: 50px; z-index: 9999; transition: top 0.4s; }
+        #toast.show { top: 24px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h2 style="margin:0;">ARDON LIGHT</h2>
-    </header>
-
-    <div id="notification-toast">NEW ISSUE REPORTED!</div>
+    <div id="toast"><span>🔔</span> <span id="toast-msg">Notification</span></div>
+    <audio id="alert-sound" preload="auto" src="data:audio/mp3;base64,//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAaniaAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" type="audio/mpeg"></audio>
 
     <div id="callout-overlay">
-        <h1 style="font-size: 4rem; margin:0;">⚠</h1>
-        <h1>REPORT TO DESK</h1>
-        <p>DEO is calling you.</p>
-        <button onclick="acknowledgeCallout()" style="width: 80%; background: white; color: black; margin-top: 50px;">I AM COMING</button>
+        <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+        <h1 style="font-size: 3rem; margin: 0; line-height: 1;">REPORT TO<br>DESK</h1>
+        <button onclick="acknowledgeCallout()" style="margin-top: 2rem; background: white; color: var(--danger); padding: 1rem 3rem; font-size: 1.2rem; border-radius: 50px;">I AM COMING</button>
     </div>
 
-    <div id="resolve-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h3>Select Issue Category</h3>
-            <div class="cat-grid">
-                <button class="cat-btn" onclick="confirmResolve('WID Issue')">WID Issue</button>
-                <button class="cat-btn" onclick="confirmResolve('IBL Issue')">IBL Issue</button>
-                <button class="cat-btn" onclick="confirmResolve('PNF Issue')">PNF Issue</button>
-                <button class="cat-btn" onclick="confirmResolve('Packing Cancellation')">Packing Cancellation</button>
-                <button class="cat-btn" onclick="confirmResolve('Tech Issue')">Tech Issue</button>
-                <button class="cat-btn" onclick="confirmResolve('Specification Issue')">Specification Issue</button>
+    <div id="picker-input-modal" class="overlay">
+        <div class="modal" style="text-align: left;">
+            <h3 style="margin-top:0;">Issue Details</h3>
+            <p id="modal-zone-display" style="color:var(--primary); font-weight:bold; margin-bottom: 20px;">Zone: --</p>
+
+            <div class="form-section">
+                <label class="form-label">Type of Issue</label>
+                <div class="type-grid">
+                    <button class="type-btn" onclick="selectIssueType(this, 'WID Issue')">WID Issue</button>
+                    <button class="type-btn" onclick="selectIssueType(this, 'Printer Issue')">Printer</button>
+                    <button class="type-btn" onclick="selectIssueType(this, 'Tech Issue')">Tech Issue</button>
+                </div>
             </div>
-            <button class="btn-grey" style="margin-top:15px; padding: 10px;" onclick="closeModal()">Close / Cancel</button>
+
+            <div class="form-section">
+                <label class="form-label">Picklist ID</label>
+                <input type="text" id="input-picklist-id" placeholder="Scan or Type (e.g. PL12345)">
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn-outline" onclick="closePickerModal()">Cancel</button>
+                <button class="btn-primary" onclick="submitTicketFinal()">Submit Ticket</button>
+            </div>
         </div>
     </div>
+
+    <header>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+            <h2>Ardon Light v3.0</h2>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div id="user-badge" style="display:none; font-weight:600; font-size: 0.9rem;"></div>
+            <button id="logout-btn" onclick="handleLogout()" style="display:none;">Logout</button>
+        </div>
+    </header>
 
     <div class="container">
 
         <div id="view-login" class="view-section active-view">
-            <h3>Picker / DEO Login</h3>
-            <input type="text" id="input-casper-id" placeholder="Casper ID / Employee ID">
-            <button id="btn-login" class="btn-primary" onclick="handleLogin()" disabled>Loading System...</button>
-            <p id="loading-msg">Connecting to Database...</p>
+            <div class="login-card">
+                <h2 style="margin-bottom: 1.5rem;">Welcome</h2>
+                <input type="text" id="input-casper-id" placeholder="Casper ID / Employee ID">
+                <button id="btn-login" class="btn-primary" onclick="handleLogin()" disabled>Connecting...</button>
+                <p id="loading-msg" style="margin-top: 1rem; color: #6B7280; font-size: 0.85rem;">Connecting to database...</p>
+            </div>
         </div>
 
         <div id="view-picker" class="view-section">
-            <div id="picker-status-card" class="status-card status-picking">
-                <h1 id="status-text" style="margin:0;">PICKING</h1>
-                <p id="picker-id-display">ID: --</p>
+            <div id="picker-status-card" class="status-hero bg-picking">
+                <div style="font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8;">Current Status</div>
+                <h1 id="status-text">PICKING</h1>
+                <p id="display-zone-info" style="display:none;">Help coming to <span id="display-zone" style="font-weight:bold;">--</span></p>
             </div>
 
             <div id="picker-controls">
-                <button class="btn-danger" onclick="toggleZoneSelector()">RAISE ISSUE / STOP</button>
+                <button class="btn-danger" style="height: 120px; font-size: 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;" onclick="toggleZoneSelector()">
+                    <span style="font-size: 2rem;">✋</span>
+                    <span>RAISE ISSUE</span>
+                </button>
             </div>
 
             <div id="picker-waiting" style="display:none;">
-                <h3>DEO NOTIFIED</h3>
-                <p>Help is coming to <span id="display-zone">--</span></p>
-                <br>
+                <div style="background: white; padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; margin-bottom: 1rem;">
+                    <h3 style="margin-top: 0;">DEO Notified</h3>
+                    <p><strong>Issue:</strong> <span id="wait-type">--</span></p>
+                    <p><strong>Picklist:</strong> <span id="wait-pl">--</span></p>
+                    <p style="color: #6B7280; margin-top:10px;">Please wait at your location.</p>
+                </div>
                 <button class="btn-warning" onclick="cancelActiveTicket()">CANCEL / FALSE ALARM</button>
             </div>
 
             <div id="zone-selector" style="display:none;">
-                <h3>Select Issue Zone:</h3>
+                <h3 style="margin-bottom: 1rem;">Select Location</h3>
                 <div class="zone-grid" id="zone-buttons"></div>
-                <button class="btn-primary" style="margin-top:20px; background:#7f8c8d;" onclick="cancelZoneSelection()">BACK</button>
+                <button class="btn-outline" style="width: 100%; margin-top: 10px;" onclick="cancelZoneSelection()">Cancel</button>
             </div>
         </div>
 
         <div id="view-deo" class="view-section">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-                <h2 style="margin:0;">Manager Dashboard</h2>
-                <button onclick="testNotification()" class="btn-small" style="background: #95a5a6;">🔊 Test Alert</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.5rem;">
+                <h2 style="margin:0;">Dashboard</h2>
+                <button onclick="testNotification()" class="btn-outline" style="padding: 8px 16px; font-size: 0.9rem;">🔊 Test Alert</button>
             </div>
 
             <div class="dashboard-grid">
-                
-                <div class="dashboard-panel">
-                    <h3>🔴 Active Issues</h3>
-                    <div id="ticket-list">
-                        <p>No active issues.</p>
+                <div class="card">
+                    <div class="card-header">
+                        <span>🔴 Active Issues</span>
+                        <span id="issue-count" style="background:var(--danger); color:white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">0</span>
+                    </div>
+                    <div class="card-body" id="ticket-list">
+                        <div class="empty-state">No active issues.</div>
                     </div>
                 </div>
 
-                <div class="dashboard-panel">
-                    <h3>🟢 Active Pickers</h3>
-                    <div id="active-pickers-list">
-                        <p>No pickers online.</p>
+                <div class="card">
+                    <div class="card-header">
+                        <span>🟢 Active Pickers</span>
+                        <span id="picker-count" style="background:var(--success); color:white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">0</span>
+                    </div>
+                    <div class="card-body" id="active-pickers-list">
+                        <div class="empty-state">No pickers online.</div>
                     </div>
                 </div>
             </div>
 
-            <div class="history-section">
-                <div class="history-header">
-                    <h3 style="margin:0;">Downtime Logs</h3>
-                    <button onclick="downloadCSV()" class="btn-small btn-success">⬇️ Export CSV</button>
+            <div class="card">
+                <div class="card-header">
+                    <span>📋 Logs</span>
+                    <button onclick="downloadCSV()" style="font-size: 0.8rem; padding: 6px 12px; background: #F3F4F6; border: 1px solid #E5E7EB; border-radius: 6px; color: var(--dark);">⬇ CSV</button>
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>ID</th>
-                            <th>Zone</th>
-                            <th>Category</th>
-                            <th>Duration</th>
-                        </tr>
-                    </thead>
-                    <tbody id="history-list"></tbody>
-                </table>
+                <div class="card-body">
+                    <table class="history-table">
+                        <thead><tr><th>Time</th><th>ID</th><th>Zone</th><th>Issue</th><th>Picklist</th><th>Duration</th></tr></thead>
+                        <tbody id="history-list"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -363,7 +303,8 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, remove, set, onChildAdded, get, update, onDisconnect } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-        // --- CONFIGURATION ---
+        // --- REPLACE WITH YOUR FIREBASE CONFIG ---
+    // --- CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyBIg1Qdo-GPYFV6ML2JNOLSyx-Jrllmx5s",
             authDomain: "ardon-4b555.firebaseapp.com",
@@ -384,227 +325,172 @@
         let currentTicketId = null;
         let isDeoMode = false;
         let initialLoadComplete = false; 
-        
         let allHistoryData = [];
-        let pendingResolveId = null; 
+        let alertInterval = null;
 
-        // --- 1. INITIALIZATION ---
+        // Temporary Data for Picker Form
+        let tempZone = "";
+        let tempIssueType = "";
+
+        // --- INIT ---
         (async function initSystem() {
             try {
                 const response = await fetch(PICKER_LIST_URL);
                 if (response.ok) authorizedPickers = await response.json();
             } catch (error) { console.error("List fetch error", error); }
             
-            // Enable login regardless of list fetch success for robustness
-            document.getElementById('btn-login').disabled = false;
-            document.getElementById('btn-login').innerText = "ENTER SHIFT";
-            document.getElementById('loading-msg').style.display = 'none';
+            const savedUser = localStorage.getItem('ardon_user');
+            if (savedUser) {
+                currentUser = savedUser;
+                if (currentUser === 'DEO' || currentUser === 'ADMIN') enterDeoMode();
+                else enterPickerMode();
+            } else {
+                document.getElementById('btn-login').disabled = false;
+                document.getElementById('btn-login').innerText = "Start Shift";
+                document.getElementById('loading-msg').style.display = 'none';
+            }
         })();
 
-        // --- 2. LOGIN LOGIC ---
+        // --- LOGIN/LOGOUT ---
         window.handleLogin = function() {
             const inputId = document.getElementById('input-casper-id').value.toUpperCase().trim();
-            if(!inputId) return alert("Please enter ID");
+            if(!inputId) return showToast("Please enter ID");
+            unlockAudio();
 
             if (inputId === 'DEO' || inputId === 'ADMIN') {
                 currentUser = inputId;
+                localStorage.setItem('ardon_user', currentUser);
                 if ("Notification" in window) Notification.requestPermission();
                 enterDeoMode();
                 return;
             }
 
-            // Simple validation
-            let isValidUser = true;
-            if(authorizedPickers.length > 0) {
-                 isValidUser = authorizedPickers.some(id => String(id).toUpperCase() === inputId);
-            }
+            let isValidUser = true; 
+            if(authorizedPickers.length > 0) isValidUser = authorizedPickers.some(id => String(id).toUpperCase() === inputId);
 
             if (isValidUser) {
                 currentUser = inputId;
+                localStorage.setItem('ardon_user', currentUser);
                 enterPickerMode();
             } else {
-                alert("Access Denied.");
+                showToast("Access Denied.");
             }
+        }
+
+        window.handleLogout = function() {
+            if (!isDeoMode && currentUser) remove(ref(db, 'active_pickers/' + currentUser));
+            localStorage.removeItem('ardon_user');
+            location.reload();
         }
 
         function enterDeoMode() {
             document.getElementById('view-login').classList.remove('active-view');
             document.getElementById('view-deo').classList.add('active-view');
+            document.getElementById('user-badge').style.display = "block";
+            document.getElementById('user-badge').innerText = "Manager Mode";
+            document.getElementById('logout-btn').style.display = "block";
             isDeoMode = true;
             initManagerListener();
             initHistoryListener(); 
-            initActivePickersListener(); // View who is online
+            initActivePickersListener();
         }
 
         function enterPickerMode() {
             document.getElementById('view-login').classList.remove('active-view');
             document.getElementById('view-picker').classList.add('active-view');
-            document.getElementById('picker-id-display').innerText = "ID: " + currentUser;
+            document.getElementById('user-badge').style.display = "block";
+            document.getElementById('user-badge').innerText = `Picker: ${currentUser}`;
+            document.getElementById('logout-btn').style.display = "block";
             isDeoMode = false;
             generateZones();
             initPickerListener(); 
             
-            // --- PRESENCE SYSTEM: REGISTER PICKER ONLINE ---
             const myPresenceRef = ref(db, 'active_pickers/' + currentUser);
-            
-            // 1. Set myself as online
-            set(myPresenceRef, {
-                status: 'PICKING',
-                last_seen: Date.now(),
-                call_out: false
-            });
-
-            // 2. If I disconnect (close app), remove me from list
+            set(myPresenceRef, { status: 'PICKING', last_seen: Date.now(), call_out: false });
             onDisconnect(myPresenceRef).remove();
 
-            // 3. Listen for Call Outs
             onValue(myPresenceRef, (snapshot) => {
                 const data = snapshot.val();
-                if(data && data.call_out === true) {
-                    // TRIGGER ALERT OVERLAY
-                    document.getElementById('callout-overlay').style.display = 'flex';
-                    playVoiceAlert("Attention. Report to desk immediately.");
-                }
+                if(data && data.call_out === true) startCalloutAlert();
+                else stopCalloutAlert();
             });
         }
 
-        // --- 3. HELPER FUNCTIONS ---
-        function formatDuration(ms) {
-            const seconds = Math.floor((ms / 1000) % 60);
-            const minutes = Math.floor((ms / (1000 * 60)) % 60);
-            return `${minutes}m ${seconds}s`;
-        }
+        // --- PICKER WORKFLOW (NEW MULTI-STEP) ---
         
-        function formatTime(timestamp) {
-            const d = new Date(timestamp);
-            return d.getHours().toString().padStart(2,'0') + ":" + d.getMinutes().toString().padStart(2,'0') + ":" + d.getSeconds().toString().padStart(2,'0');
+        // 1. Zone Selection
+        window.toggleZoneSelector = () => {
+            document.getElementById('picker-controls').style.display = 'none';
+            document.getElementById('zone-selector').style.display = 'block';
         }
-        
-        function formatDate(timestamp) {
-            return new Date(timestamp).toLocaleDateString();
-        }
-
-        function playVoiceAlert(text) {
-             if ('speechSynthesis' in window) {
-                const msg = new SpeechSynthesisUtterance(text);
-                window.speechSynthesis.speak(msg);
-            }
+        window.cancelZoneSelection = () => {
+            document.getElementById('picker-controls').style.display = 'block';
+            document.getElementById('zone-selector').style.display = 'none';
         }
 
-        // --- 4. CSV EXPORT ---
-        window.downloadCSV = function() {
-            if(!allHistoryData || allHistoryData.length === 0) {
-                alert("No data.");
-                return;
-            }
-            let csvContent = "data:text/csv;charset=utf-8,Date,Time,Picker ID,Zone,Category,Duration (Seconds)\n";
-            allHistoryData.forEach(row => {
-                const date = formatDate(row.start_time);
-                const time = formatTime(row.start_time);
-                const durationSec = Math.round(row.duration_ms / 1000);
-                const category = row.category ? `"${row.category}"` : "Unknown";
-                csvContent += `${date},${time},${row.casper_id},${row.zone},${category},${durationSec}\n`;
-            });
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `ardon_report_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // --- 5. TICKET & MODAL ACTIONS ---
-        window.promptResolve = function(ticketId) {
-            pendingResolveId = ticketId;
-            document.getElementById('resolve-modal').style.display = 'flex';
-        }
-
-        window.confirmResolve = function(category) {
-            if(pendingResolveId) {
-                archiveAndResolve(pendingResolveId, category);
-                closeModal();
-            }
-        }
-
-        window.closeModal = function() {
-            document.getElementById('resolve-modal').style.display = 'none';
-            pendingResolveId = null;
-        }
-
-        // --- 6. CORE LOGIC (DB) ---
-        function archiveAndResolve(ticketId, category) {
-            const ticketRef = ref(db, 'tickets/' + ticketId);
+        // 2. Open Detail Modal
+        window.openDetailForm = function(zone) {
+            tempZone = zone;
+            tempIssueType = ""; // Reset
+            document.getElementById('input-picklist-id').value = ""; // Reset
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected')); // Reset UI
             
-            get(ticketRef).then((snapshot) => {
-                if (snapshot.exists()) {
-                    const ticket = snapshot.val();
-                    const endTime = Date.now();
-                    const duration = endTime - ticket.timestamp;
-
-                    // Save to history
-                    push(ref(db, 'history'), {
-                        casper_id: ticket.casper_id,
-                        zone: ticket.zone,
-                        start_time: ticket.timestamp,
-                        end_time: endTime,
-                        duration_ms: duration,
-                        category: category
-                    });
-
-                    // Remove ticket
-                    remove(ticketRef);
-                    
-                    // Update Presence Status back to Picking
-                    if(ticket.casper_id) {
-                        update(ref(db, 'active_pickers/' + ticket.casper_id), { status: 'PICKING' });
-                    }
-                }
-            });
+            document.getElementById('modal-zone-display').innerText = `Zone: ${zone}`;
+            document.getElementById('picker-input-modal').style.display = 'flex';
         }
 
-        // --- 7. PICKER ACTIONS ---
-        
-        window.cancelActiveTicket = function() {
-            if(currentTicketId) archiveAndResolve(currentTicketId, 'False Alarm');
+        // 3. UI Helpers for Modal
+        window.selectIssueType = function(btn, type) {
+            tempIssueType = type;
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
         }
+        window.closePickerModal = () => document.getElementById('picker-input-modal').style.display = 'none';
 
-        // Picker Acknowledges the "Call Out"
-        window.acknowledgeCallout = function() {
-            document.getElementById('callout-overlay').style.display = 'none';
-            // Reset call_out flag in DB
-            update(ref(db, 'active_pickers/' + currentUser), { call_out: false });
-        }
+        // 4. Submit Final Ticket
+        window.submitTicketFinal = function() {
+            const picklistId = document.getElementById('input-picklist-id').value.trim().toUpperCase();
+            
+            if(!tempIssueType) return showToast("Select Issue Type");
+            if(!picklistId) return showToast("Enter Picklist ID");
+            if(picklistId.length < 5) return showToast("Invalid Picklist ID");
 
-        function raiseTicket(zone) {
-            const ticketsRef = ref(db, 'tickets');
-            const newTicketRef = push(ticketsRef); 
+            // Valid -> Send to DB
+            const newTicketRef = push(ref(db, 'tickets')); 
             set(newTicketRef, {
                 casper_id: currentUser,
-                zone: zone,
+                zone: tempZone,
+                issue_type: tempIssueType,
+                picklist_id: picklistId,
                 timestamp: Date.now()
             }).then(() => {
                 currentTicketId = newTicketRef.key;
-                setPickerState('HOLD', zone);
-                
-                // Update Presence Status to ISSUE
-                update(ref(db, 'active_pickers/' + currentUser), { status: 'ISSUE (' + zone + ')' });
+                setPickerState('HOLD', tempZone, tempIssueType, picklistId);
+                update(ref(db, 'active_pickers/' + currentUser), { status: 'ISSUE (' + tempZone + ')' });
+                closePickerModal();
             });
         }
 
-        function setPickerState(state, zone) {
-            const statusCard = document.getElementById('picker-status-card');
-            const statusText = document.getElementById('status-text');
+        // --- UI STATE UPDATES ---
+        function setPickerState(state, zone, type, pl) {
+            const hero = document.getElementById('picker-status-card');
+            
+            if (state === 'HOLD') {
+                hero.className = 'status-hero bg-hold';
+                document.getElementById('status-text').innerText = 'STOPPED';
+                document.getElementById('display-zone').innerText = zone;
+                document.getElementById('display-zone-info').style.display = 'block';
+                
+                // Set waiting details
+                document.getElementById('wait-type').innerText = type || "--";
+                document.getElementById('wait-pl').innerText = pl || "--";
 
-            if(state === 'HOLD') {
-                statusCard.className = 'status-card status-hold';
-                statusText.innerText = 'STOP - ISSUE';
                 document.getElementById('zone-selector').style.display = 'none';
                 document.getElementById('picker-waiting').style.display = 'block';
-                document.getElementById('display-zone').innerText = zone;
             } else {
-                statusCard.className = 'status-card status-picking';
-                statusText.innerText = 'PICKING';
+                hero.className = 'status-hero bg-picking';
+                document.getElementById('status-text').innerText = 'PICKING';
+                document.getElementById('display-zone-info').style.display = 'none';
                 document.getElementById('picker-controls').style.display = 'block';
                 document.getElementById('picker-waiting').style.display = 'none';
                 document.getElementById('zone-selector').style.display = 'none';
@@ -612,165 +498,218 @@
             }
         }
 
-        function initPickerListener() {
-            // Watch my own ticket status
-            const ticketsRef = ref(db, 'tickets');
-            onValue(ticketsRef, (snapshot) => {
-                const data = snapshot.val();
-                let myTicketStillExists = false;
-                if (data) {
-                    Object.keys(data).forEach(key => {
-                        if (key === currentTicketId) myTicketStillExists = true;
-                    });
-                }
-                if (currentTicketId && !myTicketStillExists) {
-                    setPickerState('PICKING');
-                }
-            });
-        }
-
-        // --- 8. DEO LISTENERS ---
-
+        // --- DEO VIEW ---
         function initManagerListener() {
-            const ticketsRef = ref(db, 'tickets');
             const listContainer = document.getElementById('ticket-list');
+            const countBadge = document.getElementById('issue-count');
 
-            onValue(ticketsRef, (snapshot) => {
+            onValue(ref(db, 'tickets'), (snapshot) => {
                 const data = snapshot.val();
-                listContainer.innerHTML = ""; 
+                listContainer.innerHTML = "";
+                let count = 0;
+
                 if (!data) {
-                    listContainer.innerHTML = "<p>No active issues.</p>";
+                    listContainer.innerHTML = '<div class="empty-state">No active issues.</div>';
                 } else {
                     Object.keys(data).forEach(key => {
+                        count++;
                         const ticket = data[key];
                         const timeAgo = Math.floor((Date.now() - ticket.timestamp) / 60000); 
+                        
                         const html = `
-                        <div class="ticket-card">
-                            <div class="ticket-info">
-                                <h3>ZONE: ${ticket.zone}</h3>
-                                <p>Picker: ${ticket.casper_id}</p>
-                                <p><small>${timeAgo} mins ago</small></p>
+                        <div class="ticket-item">
+                            <div class="ticket-details">
+                                <h4><span class="badge badge-red">${ticket.zone}</span> &nbsp;${ticket.casper_id}</h4>
+                                <div class="ticket-meta">
+                                    <span class="meta-tag">⚠ ${ticket.issue_type}</span>
+                                    <span class="meta-tag">📄 PL: ${ticket.picklist_id}</span>
+                                    <span>⏱ ${timeAgo}m ago</span>
+                                </div>
                             </div>
-                            <button class="btn-resolve" onclick="promptResolve('${key}')">RESOLVE</button>
+                            <button class="btn-primary" style="width:auto; padding:8px 16px;" onclick="resolveTicket('${key}')">Resolve</button>
                         </div>`;
                         listContainer.innerHTML += html;
                     });
                 }
+                countBadge.innerText = count;
                 initialLoadComplete = true;
             });
 
-            onChildAdded(ticketsRef, (snapshot) => {
+            onChildAdded(ref(db, 'tickets'), (snapshot) => {
                 if (initialLoadComplete) triggerAlert(snapshot.val().zone);
             });
         }
 
-        // --- NEW: ACTIVE PICKERS LISTENER ---
-        function initActivePickersListener() {
-            const pickersRef = ref(db, 'active_pickers');
-            const listContainer = document.getElementById('active-pickers-list');
-
-            onValue(pickersRef, (snapshot) => {
-                const data = snapshot.val();
-                listContainer.innerHTML = "";
-                
-                if (!data) {
-                    listContainer.innerHTML = "<p>No pickers online.</p>";
-                    return;
-                }
-
-                Object.keys(data).forEach(pickerId => {
-                    const picker = data[pickerId];
-                    const isIssue = picker.status.includes('ISSUE');
-                    const dotClass = isIssue ? 'dot-red' : 'dot-green';
-                    
-                    const html = `
-                    <div class="picker-item">
-                        <div>
-                            <span class="picker-status-dot ${dotClass}"></span>
-                            <strong>${pickerId}</strong> 
-                            <span style="color:#7f8c8d; font-size:0.9rem;"> - ${picker.status}</span>
-                        </div>
-                        <button class="btn-small" style="background:#e67e22;" onclick="callOutPicker('${pickerId}')">📢 CALL</button>
-                    </div>`;
-                    listContainer.innerHTML += html;
-                });
-            });
-
-            // Expose call out function
-            window.callOutPicker = function(pickerId) {
-                if(confirm("Send 'REPORT TO DESK' alert to " + pickerId + "?")) {
-                    update(ref(db, 'active_pickers/' + pickerId), { call_out: true });
-                }
-            }
-        }
-
-        function initHistoryListener() {
-            const historyRef = ref(db, 'history');
-            const historyTable = document.getElementById('history-list');
-
-            onValue(historyRef, (snapshot) => {
-                const data = snapshot.val();
-                historyTable.innerHTML = "";
-                if(data) {
-                    allHistoryData = Object.values(data).sort((a,b) => b.end_time - a.end_time);
-                    allHistoryData.slice(0, 20).forEach(entry => {
-                        const row = `<tr>
-                            <td>${formatTime(entry.start_time)}</td>
-                            <td>${entry.casper_id}</td>
-                            <td>${entry.zone}</td>
-                            <td>${entry.category || 'Resolved'}</td>
-                            <td class="duration-cell">${formatDuration(entry.duration_ms)}</td>
-                        </tr>`;
-                        historyTable.innerHTML += row;
-                    });
-                }
-            });
-        }
-
-        // --- 9. NOTIFICATION ---
-        window.testNotification = function() { triggerAlert("Test Zone A1"); }
-
-        function triggerAlert(zoneName) {
-            const message = `Issue reported in Zone ${zoneName}`;
-            playVoiceAlert(`Alert. ${message}`);
-            
-            const toast = document.getElementById("notification-toast");
-            toast.innerText = `⚠️ ${message}`;
-            toast.classList.add("show");
-            setTimeout(() => { toast.classList.remove("show"); }, 5000);
-
-            if ("Notification" in window && Notification.permission === "granted") {
-                const notification = new Notification("Ardon Light Alert", {
-                    body: message,
-                    icon: "https://cdn-icons-png.flaticon.com/512/564/564619.png",
-                    requireInteraction: true 
-                });
-                notification.onclick = function() { window.focus(); this.close(); };
-            }
-        }
-
+        // --- SHARED ACTIONS ---
         function generateZones() {
             const container = document.getElementById('zone-buttons');
             const aisles = ['A', 'B', 'C', 'D', 'E', 'F'];
             let html = '';
             aisles.forEach(aisle => {
                 for(let i=1; i<=3; i++) { 
-                    let zone = aisle + i;
-                    html += `<button class="zone-btn" onclick="raiseTicket('${zone}')">${zone}</button>`;
+                    html += `<button class="zone-btn" onclick="openDetailForm('${aisle+i}')">${aisle+i}</button>`;
                 }
             });
             container.innerHTML = html;
-            window.raiseTicket = raiseTicket;
         }
 
-        window.toggleZoneSelector = function() {
-            document.getElementById('picker-controls').style.display = 'none';
-            document.getElementById('zone-selector').style.display = 'grid';
+        window.cancelActiveTicket = function() {
+            if(currentTicketId) archiveAndResolve(currentTicketId, 'False Alarm');
         }
 
-        window.cancelZoneSelection = function() {
-            document.getElementById('picker-controls').style.display = 'block';
-            document.getElementById('zone-selector').style.display = 'none';
+        window.resolveTicket = function(ticketId) {
+            if(confirm("Confirm issue is resolved and ticket closed?")) {
+                archiveAndResolve(ticketId, 'Resolved');
+            }
+        }
+
+        function archiveAndResolve(ticketId, outcome) {
+            const ticketRef = ref(db, 'tickets/' + ticketId);
+            get(ticketRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const t = snapshot.val();
+                    const duration = Date.now() - t.timestamp;
+
+                    push(ref(db, 'history'), {
+                        casper_id: t.casper_id,
+                        zone: t.zone,
+                        issue_type: t.issue_type,
+                        picklist_id: t.picklist_id,
+                        start_time: t.timestamp,
+                        end_time: Date.now(),
+                        duration_ms: duration,
+                        outcome: outcome // 'Resolved' or 'False Alarm'
+                    });
+                    remove(ticketRef);
+                    if(t.casper_id) update(ref(db, 'active_pickers/' + t.casper_id), { status: 'PICKING' });
+                }
+            });
+        }
+
+        // --- HISTORY & CSV ---
+        function initHistoryListener() {
+            const historyTable = document.getElementById('history-list');
+            onValue(ref(db, 'history'), (snapshot) => {
+                const data = snapshot.val();
+                historyTable.innerHTML = "";
+                if(data) {
+                    allHistoryData = Object.values(data).sort((a,b) => b.end_time - a.end_time);
+                    allHistoryData.slice(0, 20).forEach(entry => {
+                        const sec = Math.round(entry.duration_ms / 1000);
+                        const time = new Date(entry.start_time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                        
+                        historyTable.innerHTML += `<tr>
+                            <td>${time}</td>
+                            <td>${entry.casper_id}</td>
+                            <td><span class="badge badge-red">${entry.zone}</span></td>
+                            <td>${entry.issue_type}<br><small style="color:#6B7280">${entry.picklist_id}</small></td>
+                            <td>${entry.outcome === 'False Alarm' ? 'Cancelled' : sec + 's'}</td>
+                        </tr>`;
+                    });
+                }
+            });
+        }
+
+        window.downloadCSV = function() {
+            if(!allHistoryData.length) return showToast("No data to export");
+            let csv = "data:text/csv;charset=utf-8,Date,Time,Picker ID,Zone,Issue Type,Picklist ID,Duration (Seconds),Outcome\n";
+            allHistoryData.forEach(row => {
+                const d = new Date(row.start_time);
+                csv += `${d.toLocaleDateString()},${d.toLocaleTimeString()},${row.casper_id},${row.zone},"${row.issue_type}","${row.picklist_id}",${Math.round(row.duration_ms/1000)},${row.outcome}\n`;
+            });
+            const link = document.createElement("a");
+            link.href = encodeURI(csv);
+            link.download = `ardon_report_v3_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        // --- ALERTS ---
+        function initActivePickersListener() {
+            const listContainer = document.getElementById('active-pickers-list');
+            const countBadge = document.getElementById('picker-count');
+            onValue(ref(db, 'active_pickers'), (snapshot) => {
+                const data = snapshot.val();
+                listContainer.innerHTML = "";
+                let count = 0;
+                if (!data) {
+                    listContainer.innerHTML = '<div class="empty-state">No pickers online.</div>';
+                } else {
+                    Object.keys(data).forEach(pickerId => {
+                        count++;
+                        const picker = data[pickerId];
+                        const isIssue = picker.status.includes('ISSUE');
+                        const dotClass = isIssue ? 'dot-red' : 'dot-green';
+                        listContainer.innerHTML += `
+                        <div class="picker-item">
+                            <div class="picker-info">
+                                <div class="status-dot ${dotClass}"></div>
+                                <div><div class="picker-name">${pickerId}</div><div class="picker-status-text">${picker.status}</div></div>
+                            </div>
+                            <button class="btn-call" onclick="callOutPicker('${pickerId}')">📢 CALL</button>
+                        </div>`;
+                    });
+                }
+                countBadge.innerText = count;
+            });
+        }
+
+        // --- HELPERS ---
+        function initPickerListener() {
+            onValue(ref(db, 'tickets'), (snapshot) => {
+                const data = snapshot.val();
+                let exists = false;
+                let ticketData = null;
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        if (key === currentTicketId) { exists = true; ticketData = data[key]; }
+                    });
+                }
+                if (currentTicketId && !exists) setPickerState('PICKING'); // Resolved
+            });
+        }
+
+        window.callOutPicker = (id) => {
+            if(confirm(`Alert ${id}?`)) {
+                update(ref(db, 'active_pickers/' + id), { call_out: true });
+                showToast(`Alerting ${id}...`);
+            }
+        };
+        window.acknowledgeCallout = () => {
+            stopCalloutAlert();
+            update(ref(db, 'active_pickers/' + currentUser), { call_out: false });
+        };
+        function startCalloutAlert() {
+            const overlay = document.getElementById('callout-overlay');
+            if(overlay.style.display === 'flex') return;
+            overlay.style.display = 'flex';
+            alertInterval = setInterval(() => {
+                 if ('speechSynthesis' in window) {
+                    window.speechSynthesis.speak(new SpeechSynthesisUtterance("Report to desk immediately"));
+                }
+                if (navigator.vibrate) navigator.vibrate([500, 200, 500]);
+            }, 3000);
+        }
+        function stopCalloutAlert() {
+            document.getElementById('callout-overlay').style.display = 'none';
+            if(alertInterval) clearInterval(alertInterval);
+            if('speechSynthesis' in window) window.speechSynthesis.cancel();
+        }
+        function triggerAlert(zone) {
+            const msg = `Issue in Zone ${zone}`;
+            showToast(msg);
+             if ('speechSynthesis' in window) window.speechSynthesis.speak(new SpeechSynthesisUtterance(msg));
+            if ("Notification" in window && Notification.permission === "granted") new Notification("Ardon Light", { body: msg, requireInteraction: true });
+        }
+        function unlockAudio() {
+            const audio = document.getElementById('alert-sound');
+            audio.play().catch(e=>{});
+        }
+        window.testNotification = () => triggerAlert("TEST");
+        window.showToast = (msg) => {
+             const t = document.getElementById("toast");
+             document.getElementById("toast-msg").innerText = msg;
+             t.classList.add("show");
+             setTimeout(()=>t.classList.remove("show"), 3000);
         }
     </script>
 </body>
