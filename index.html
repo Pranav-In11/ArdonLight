@@ -639,7 +639,7 @@
             const aisles = ['A', 'B', 'C', 'D', 'E', 'F'];
             let html = '';
             aisles.forEach(aisle => {
-                for(let i=1; i<=3; i++) { 
+                for(let i=1; i<=9; i++) { 
                     html += `<button class="zone-btn" onclick="openDetailForm('${aisle+i}')">${aisle+i}</button>`;
                 }
             });
